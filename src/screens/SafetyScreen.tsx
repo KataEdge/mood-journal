@@ -20,6 +20,8 @@ import {
   requestNotificationPermission,
 } from '../utils/notifications';
 import { ReminderSettings, ThemeType } from '../types';
+import { getMoodEntries } from '../utils/storage';
+import { checkAndEvaluateBadges } from '../utils/streak';
 import {
   FontSize,
   Spacing,
@@ -281,6 +283,10 @@ export default function SafetyScreen() {
       <BreathingGuideModal
         visible={showBreathingModal}
         onClose={() => setShowBreathingModal(false)}
+        onCompleteWithBreathing={async () => {
+          const entries = await getMoodEntries();
+          await checkAndEvaluateBadges(entries, 1);
+        }}
       />
 
       {/* 時刻選択モーダル */}

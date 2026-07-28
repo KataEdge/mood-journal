@@ -21,9 +21,13 @@ import BreathingGuideModal from '../components/BreathingGuideModal';
 import { TagSelector } from '../components/TagSelector';
 import { ThemeHeader } from '../components/ThemeHeader';
 import { HealthCard } from '../components/HealthCard';
-import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry } from '../types';
-import { saveMoodEntry, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
+import { StreakCard } from '../components/StreakCard';
+import { AchievementModal } from '../components/AchievementModal';
+import { BadgeUnlockedModal } from '../components/BadgeUnlockedModal';
+import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry, StreakInfo, AchievementBadge } from '../types';
+import { saveMoodEntry, getMoodEntries, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
+import { calculateStreak, checkAndEvaluateBadges } from '../utils/streak';
 import {
   fetchTodayHealthData,
   getHealthSyncPreference,
@@ -48,6 +52,13 @@ export default function HomeScreen() {
   const [breathingSession, setBreathingSession] = useState<BreathingSession | null>(null);
   const [lastSavedLowEntry, setLastSavedLowEntry] = useState<MoodEntry | null>(null);
   const [saved, setSaved] = useState(false);
+
+  // ストリーク & アチーブメント ステート
+  const [streakInfo, setStreakInfo] = useState<StreakInfo>({ currentStreak: 0, longestStreak: 0, lastRecordedDate: '' });
+  const [badges, setBadges] = useState<AchievementBadge[]>([]);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<AchievementBadge | null>(null);
+
 
   // ヘルスケア連携ステート
   const [healthEnabled, setHealthEnabled] = useState(true);
@@ -81,11 +92,23 @@ export default function HomeScreen() {
     initHealthSync();
   }, []);
 
-  // 画面にフォーカスが戻るたびにメッセージとヘルスケアデータを更新
+  const loadStreakAndBadges = async () => {
+    const entries = await getMoodEntries();
+    const streak = calculateStreak(entries);
+    setStreakInfo(streak);
+
+    // 呼吸法セッション数をチェック（現段階では0、または過去エントリから取得）
+    const breathingCount = entries.filter((e) => e.breathingSession).length;
+    const { badges: evaluatedBadges } = await checkAndEvaluateBadges(entries, breathingCount);
+    setBadges(evaluatedBadges);
+  };
+
+  // 画面にフォーカスが戻るたびにメッセージ、ヘルスケアデータ、ストリークを更新
   useFocusEffect(
     useCallback(() => {
       refreshQuote();
       loadHealthData();
+      loadStreakAndBadges();
     }, [])
   );
 
@@ -181,6 +204,19 @@ export default function HomeScreen() {
 
     await saveMoodEntry(entry);
 
+    // 最新のエントリ一覧を取得してストリーク & アチーブメントを更新・判定
+    const updatedEntries = await getMoodEntries();
+    const newStreak = calculateStreak(updatedEntries);
+    setStreakInfo(newStreak);
+
+    const breathingCount = updatedEntries.filter((e) => e.breathingSession).length;
+    const { badges: newBadges, newlyUnlocked } = await checkAndEvaluateBadges(updatedEntries, breathingCount);
+    setBadges(newBadges);
+
+    if (newlyUnlocked.length > 0) {
+      setNewlyUnlockedBadge(newlyUnlocked[0]);
+    }
+
     // 保存成功アニメーション
     setSaved(true);
     Animated.sequence([
@@ -251,6 +287,14 @@ export default function HomeScreen() {
           >
             {/* ヘッダー */}
             <ThemeHeader title="こんにちは 👋" subtitle={dateString} />
+
+            {/* 連続記録ストリーク＆アチーブメントカード */}
+            <StreakCard
+              streakInfo={streakInfo}
+              unlockedBadgeCount={badges.filter((b) => b.unlockedAt !== null).length}
+              totalBadgeCount={badges.length}
+              onPress={() => setShowAchievementModal(true)}
+            />
 
             {/* 有名人・偉人の名言 */}
             <Animated.View style={[styles.messageCard, { backgroundColor: colors.surface, borderLeftColor: colors.primary, opacity: messageOpacity }]}>
@@ -378,6 +422,21 @@ export default function HomeScreen() {
           setLastSavedLowEntry(null);
         }}
         onCompleteWithBreathing={handleBreathingComplete}
+      />
+
+      {/* アチーブメント一覧モーダル */}
+      <AchievementModal
+        visible={showAchievementModal}
+        onClose={() => setShowAchievementModal(false)}
+        badges={badges}
+        currentStreak={streakInfo.currentStreak}
+      />
+
+      {/* 新規アチーブメント獲得モーダル */}
+      <BadgeUnlockedModal
+        visible={!!newlyUnlockedBadge}
+        unlockedBadge={newlyUnlockedBadge}
+        onClose={() => setNewlyUnlockedBadge(null)}
       />
     </SafeAreaView>
   );

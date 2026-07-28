@@ -135,3 +135,32 @@ export interface AnalyticsSummary {
   adviceMessage: string;
 }
 
+/**
+ * 連続記録ストリーク情報
+ */
+export interface StreakInfo {
+  currentStreak: number;     // 現在の連続記録日数
+  longestStreak: number;     // 最長連続記録日数
+  lastRecordedDate: string;  // 最終記録日 (YYYY-MM-DD)
+}
+
+/**
+ * アチーブメントのカテゴリ
+ */
+export type AchievementCategory = 'streak' | 'total' | 'selfcare' | 'special';
+
+/**
+ * アチーブメントバッジ情報
+ */
+export interface AchievementBadge {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;             // 絵文字アイコン (例: 🌱, 🔥, 🏆, 🫁)
+  category: AchievementCategory;
+  unlockedAt: string | null; // 解放日時 (ISO 8601, 未解放の場合は null)
+  targetCount: number;      // 達成に必要な目標数
+  currentCount: number;     // 現在の達成進捗
+}
+
+
