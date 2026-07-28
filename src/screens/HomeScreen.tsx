@@ -155,7 +155,7 @@ export default function HomeScreen() {
 
     Keyboard.dismiss();
 
-    const isLowMood = selectedMood === 4 || selectedMood === 5;
+    const isLowMood = selectedMood === 1 || selectedMood === 2;
 
     const entry = {
       id: Date.now().toString() + Math.random().toString(36).slice(2, 9),
