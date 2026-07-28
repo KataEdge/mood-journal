@@ -1,9 +1,9 @@
 ---
-name: merge-to-main
+name: create-pr
 description: 現在の作業・変更を型チェックで検証し、コミット・Pushしてmainブランチ宛てのPull Request (PR) を作成する定型自動フロー
 ---
 
-# 🔀 main向け Pull Request 作成自動化スキル (Create PR for Main Automation)
+# 🔀 Pull Request (PR) 作成自動化スキル (Create PR Automation)
 
 このスキルは、作業中・開発済みの変更を `npm run check` による品質検証の上でコミットし、`main` ブランチ宛ての Pull Request (PR) を作成・公開するための定型フローです。
 
@@ -50,4 +50,3 @@ gh pr create --title "feat: <タイトル>" --body "## 概要\n- 変更内容の
 ```bash
 git status
 ```
-
