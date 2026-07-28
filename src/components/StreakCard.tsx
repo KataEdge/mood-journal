@@ -63,35 +63,37 @@ export const StreakCard: React.FC<StreakCardProps> = ({
       </View>
 
       <View style={styles.rightSection}>
-        {streakInfo.freezeAvailable && (
+        <View style={styles.pillsColumn}>
+          {streakInfo.freezeAvailable && (
+            <View
+              style={[
+                styles.freezePill,
+                {
+                  backgroundColor: '#E0F2FE',
+                  borderColor: '#0284C7',
+                },
+              ]}
+            >
+              <Text style={styles.freezeEmoji}>❄️</Text>
+              <Text style={[styles.freezeText, { color: '#0369A1' }]}>1日救済あり</Text>
+            </View>
+          )}
           <View
             style={[
-              styles.freezePill,
+              styles.badgePill,
               {
-                backgroundColor: '#E0F2FE',
-                borderColor: '#0284C7',
+                backgroundColor: `${colors.primary}25`,
+                borderColor: colors.primaryDark,
               },
             ]}
           >
-            <Text style={styles.freezeEmoji}>❄️</Text>
-            <Text style={[styles.freezeText, { color: '#0369A1' }]}>1日救済あり</Text>
+            <Ionicons name="trophy-outline" size={12} color={colors.primaryDark} />
+            <Text style={[styles.badgePillText, { color: colors.primaryDark }]}>
+              {unlockedBadgeCount}/{totalBadgeCount}
+            </Text>
           </View>
-        )}
-        <View
-          style={[
-            styles.badgePill,
-            {
-              backgroundColor: `${colors.primary}25`,
-              borderColor: colors.primaryDark,
-            },
-          ]}
-        >
-          <Ionicons name="trophy-outline" size={14} color={colors.primaryDark} />
-          <Text style={[styles.badgePillText, { color: colors.primaryDark }]}>
-            {unlockedBadgeCount}/{totalBadgeCount}
-          </Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.textLight} />
+        <Ionicons name="chevron-forward" size={18} color={colors.textLight} style={styles.chevron} />
       </View>
     </TouchableOpacity>
   );
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm + 4,
+    paddingVertical: Spacing.md,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
     marginBottom: Spacing.md,
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: Spacing.xs,
+    marginRight: Spacing.sm,
   },
   iconContainer: {
     width: 44,
@@ -149,35 +151,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexShrink: 0,
   },
+  pillsColumn: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 4,
+  },
   badgePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
+    paddingHorizontal: Spacing.xs + 4,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    marginRight: Spacing.xs,
   },
   badgePillText: {
-    fontSize: FontSize.xs,
+    fontSize: FontSize.xs - 1,
     fontWeight: '700',
-    marginLeft: 4,
+    marginLeft: 3,
   },
   freezePill: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.xs + 2,
-    paddingVertical: 4,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    marginRight: Spacing.xs,
   },
   freezeEmoji: {
-    fontSize: 11,
+    fontSize: 10,
     marginRight: 2,
   },
   freezeText: {
     fontSize: FontSize.xs - 1,
     fontWeight: '700',
+  },
+  chevron: {
+    marginLeft: 4,
   },
 });
