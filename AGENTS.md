@@ -62,11 +62,11 @@ AIエージェントまたは開発者は、コード変更後に必ず以下の
 ## 🛡️ 4. 開発・コード変更ルール (Safety Rules)
 
 1. **型安全性の維持**:
-   - `any` 型の使用は禁止です。データ構造の追加・変更は必ず [src/types/index.ts](file:///Users/mikkatagiri/Desktop/workspace/mood-journal/src/types/index.ts) に型を定義してください。
+   - `any` 型の使用は禁止です。データ構造の追加・変更は必ず [src/types/index.ts](src/types/index.ts) に型を定義してください。
 2. **デザインシステム・テーマの遵守**:
-   - ハードコードされた色コードの使用は避け、[src/constants/theme.ts](file:///Users/mikkatagiri/Desktop/workspace/mood-journal/src/constants/theme.ts) の `Colors`, `FontSize`, `Spacing`, `BorderRadius` を使用してください。
+   - ハードコードされた色コードの使用は避け、[src/constants/theme.ts](src/constants/theme.ts) の `Colors`, `FontSize`, `Spacing`, `BorderRadius` を使用してください。
 3. **ローカルファーストの徹底**:
-   - 外部サーバー通信を追加せず、データは [src/utils/storage.ts](file:///Users/mikkatagiri/Desktop/workspace/mood-journal/src/utils/storage.ts) 経由で AsyncStorage にローカル保存してください。
+   - 外部サーバー通信を追加せず、データは [src/utils/storage.ts](src/utils/storage.ts) 経由で AsyncStorage にローカル保存してください。
 4. **検証の義務**:
    - コミットやPR作成前には必ず `npm run check` を実行し、型エラーが 0 件であることを確認してください。
 
@@ -74,5 +74,5 @@ AIエージェントまたは開発者は、コード変更後に必ず以下の
 
 ## 🔗 5. ドキュメント参照
 
-- **ブランチ戦略・コミット規約**: [CONTRIBUTING.md](file:///Users/mikkatagiri/Desktop/workspace/mood-journal/CONTRIBUTING.md)
-- **詳細アーキテクチャドキュメント**: [docs/architecture.md](file:///Users/mikkatagiri/Desktop/workspace/mood-journal/docs/architecture.md)
+- **ブランチ戦略・コミット規約**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **詳細アーキテクチャドキュメント**: [docs/architecture.md](docs/architecture.md)
