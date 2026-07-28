@@ -103,11 +103,11 @@ export const calculateAnalyticsSummary = (
       averageLabel = matchedOption.label;
     }
 
-    if (averageLevel <= 1.8) {
+    if (averageLevel >= 4.2) {
       adviceMessage = '素晴らしい期間でしたね！好調なリズムを保ち、自分へのご褒美を忘れずに。';
-    } else if (averageLevel <= 2.8) {
+    } else if (averageLevel >= 3.2) {
       adviceMessage = 'とても良いペースで過ごせています。リラックスする時間も大切に過ごしましょう。';
-    } else if (averageLevel <= 3.8) {
+    } else if (averageLevel >= 2.2) {
       adviceMessage = '安定した日々が続いています。心身の調子に気を配り、適度な息抜きを心がけましょう。';
     } else {
       adviceMessage = '少しお疲れ気味かもしれません。無理をせず、暖かくしてゆっくり休息を取りましょう。';
@@ -135,9 +135,9 @@ export const calculateAnalyticsSummary = (
       const opt = MOOD_OPTIONS.find((m) => m.level === roundedLevel);
 
       let category: TagAnalyticsCategory = 'neutral';
-      if (avg <= 2.5) {
+      if (avg >= 3.5) {
         category = 'positive';
-      } else if (avg >= 3.5) {
+      } else if (avg <= 2.5) {
         category = 'negative';
       }
 
@@ -150,7 +150,7 @@ export const calculateAnalyticsSummary = (
         category,
       };
     })
-    .sort((a, b) => b.count - a.count || (a.averageLevel || 0) - (b.averageLevel || 0));
+    .sort((a, b) => b.count - a.count || (b.averageLevel || 0) - (a.averageLevel || 0));
 
   return {
     totalCount,

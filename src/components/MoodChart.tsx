@@ -26,7 +26,7 @@ export const MoodChart: React.FC<MoodChartProps> = ({ points }) => {
   const chartHeight = height - paddingTop - paddingBottom;
 
   const getYCoordinate = (level: number): number => {
-    return paddingTop + ((level - 1) / 4) * chartHeight;
+    return paddingTop + ((5 - level) / 4) * chartHeight;
   };
 
   const getXCoordinate = (index: number): number => {

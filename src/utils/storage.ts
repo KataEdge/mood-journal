@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MoodEntry, ThemeType } from '../types';
+import { MoodEntry, ThemeType, MoodLevel } from '../types';
 
 const STORAGE_KEY = '@mood_journal_entries';
 const FIRST_LAUNCH_KEY = '@mood_journal_first_launch';
 const THEME_KEY = '@mood_journal_theme';
+const MIGRATED_KEY = '@mood_journal_v2_migrated';
 
 /**
  * 保存されたカラーテーマを取得する
@@ -54,7 +55,19 @@ export async function getMoodEntries(): Promise<MoodEntry[]> {
   try {
     const json = await AsyncStorage.getItem(STORAGE_KEY);
     if (!json) return [];
-    const entries: MoodEntry[] = JSON.parse(json);
+    let entries: MoodEntry[] = JSON.parse(json);
+
+    // バージョン2(MoodLevel反転: 5=とても良い, 1=辛い)マイグレーション
+    const isMigrated = await AsyncStorage.getItem(MIGRATED_KEY);
+    if (!isMigrated) {
+      entries = entries.map((entry) => ({
+        ...entry,
+        mood: (6 - entry.mood) as MoodLevel,
+      }));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      await AsyncStorage.setItem(MIGRATED_KEY, 'true');
+    }
+
     return entries.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );

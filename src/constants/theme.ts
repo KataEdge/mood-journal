@@ -66,11 +66,11 @@ export const LightThemeColors: ThemeColors = {
   warning: '#FFD3B6',
   error: '#FF8B94',
 
-  mood1: '#FFD93D',
-  mood2: '#6BCB77',
+  mood1: '#FF8B94',
+  mood2: '#AA96DA',
   mood3: '#A8D8EA',
-  mood4: '#AA96DA',
-  mood5: '#FF8B94',
+  mood4: '#6BCB77',
+  mood5: '#FFD93D',
 
   tagBg: '#EDF2F7',
   tagSelectedBg: '#AA96DA',
@@ -108,11 +108,11 @@ export const DarkThemeColors: ThemeColors = {
   warning: '#E6A15C',
   error: '#E06C75',
 
-  mood1: '#F1C40F',
-  mood2: '#2ECC71',
+  mood1: '#E74C3C',
+  mood2: '#9B59B6',
   mood3: '#3498DB',
-  mood4: '#9B59B6',
-  mood5: '#E74C3C',
+  mood4: '#2ECC71',
+  mood5: '#F1C40F',
 
   tagBg: '#2A303C',
   tagSelectedBg: '#887BB0',
@@ -150,11 +150,11 @@ export const WarmThemeColors: ThemeColors = {
   warning: '#F4A261',
   error: '#E07A5F',
 
-  mood1: '#E9C46A',
-  mood2: '#81B29A',
+  mood1: '#E07A5F',
+  mood2: '#D4A373',
   mood3: '#F4A261',
-  mood4: '#D4A373',
-  mood5: '#E07A5F',
+  mood4: '#81B29A',
+  mood5: '#E9C46A',
 
   tagBg: '#F5EBE6',
   tagSelectedBg: '#E76F51',
@@ -253,11 +253,11 @@ export const Shadow = {
  * 気分の選択肢
  */
 export const MOOD_OPTIONS: MoodOption[] = [
-  { level: 1, emoji: '😄', label: 'とても良い', color: Colors.mood1 },
-  { level: 2, emoji: '🙂', label: '良い', color: Colors.mood2 },
+  { level: 5, emoji: '😄', label: 'とても良い', color: Colors.mood5 },
+  { level: 4, emoji: '🙂', label: '良い', color: Colors.mood4 },
   { level: 3, emoji: '😐', label: '普通', color: Colors.mood3 },
-  { level: 4, emoji: '😔', label: '少し辛い', color: Colors.mood4 },
-  { level: 5, emoji: '😢', label: '辛い', color: Colors.mood5 },
+  { level: 2, emoji: '😔', label: '少し辛い', color: Colors.mood2 },
+  { level: 1, emoji: '😢', label: '辛い', color: Colors.mood1 },
 ];
 
 /**

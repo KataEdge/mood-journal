@@ -45,13 +45,12 @@ export function calculateStats(entries: MoodEntry[], days: number = 7): StatsDat
   let representativeEmoji = '✨';
 
   if (totalCount > 0) {
-    // MoodLevel 1(とても良い) -> 5点, MoodLevel 5(辛い) -> 1点
-    const sum = periodEntries.reduce((acc, cur) => acc + (6 - cur.mood), 0);
+    const sum = periodEntries.reduce((acc, cur) => acc + cur.mood, 0);
     averageMood = Math.round((sum / totalCount) * 10) / 10;
 
-    // 代表絵文字を決定（5点満点スコアをMoodLevelに変換）
+    // 代表絵文字を決定
     const roundedScore = Math.min(5, Math.max(1, Math.round(averageMood)));
-    const targetLevel = (6 - roundedScore) as MoodLevel;
+    const targetLevel = roundedScore as MoodLevel;
     const moodOpt = MOOD_OPTIONS.find((opt) => opt.level === targetLevel);
     if (moodOpt) {
       representativeEmoji = moodOpt.emoji;
@@ -74,7 +73,7 @@ export function calculateStats(entries: MoodEntry[], days: number = 7): StatsDat
     let dayAvg: number | null = null;
 
     if (dayCount > 0) {
-      const sum = dayEntries.reduce((acc, cur) => acc + (6 - cur.mood), 0);
+      const sum = dayEntries.reduce((acc, cur) => acc + cur.mood, 0);
       dayAvg = Math.round((sum / dayCount) * 10) / 10;
     }
 
@@ -101,7 +100,7 @@ export function calculateStats(entries: MoodEntry[], days: number = 7): StatsDat
     }
   });
 
-  const distribution: MoodDistribution[] = ([1, 2, 3, 4, 5] as MoodLevel[]).map((level) => {
+  const distribution: MoodDistribution[] = ([5, 4, 3, 2, 1] as MoodLevel[]).map((level) => {
     const count = levelCounts[level];
     const percentage = totalCount > 0 ? Math.round((count / totalCount) * 100) : 0;
     return { level, count, percentage };
@@ -148,8 +147,8 @@ export function calculateHealthStats(entries: MoodEntry[]): HealthStats {
   const averageSleepHours = Math.round((totalSleep / hasDataCount) * 10) / 10;
   const averageWorkoutMinutes = Math.round(totalWorkout / hasDataCount);
 
-  // 気分が良い時（MoodLevel 1 または 2）の平均睡眠時間
-  const goodMoodEntries = entriesWithHealth.filter((e) => e.mood === 1 || e.mood === 2);
+  // 気分が良い時（MoodLevel 5 または 4）の平均睡眠時間
+  const goodMoodEntries = entriesWithHealth.filter((e) => e.mood === 5 || e.mood === 4);
   let goodMoodSleepHours: number | null = null;
   if (goodMoodEntries.length > 0) {
     const goodMoodSleepSum = goodMoodEntries.reduce((sum, e) => sum + (e.healthData?.sleepHours || 0), 0);
