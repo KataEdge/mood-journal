@@ -41,3 +41,43 @@ export interface Quote {
   author: string;
   authorTitle?: string;
 }
+
+/**
+ * 統計データの集計対象期間
+ */
+export type TimeRange = '7days' | '30days';
+
+/**
+ * 感情ごとの分布データ
+ */
+export interface MoodDistributionItem {
+  level: MoodLevel;
+  emoji: string;
+  label: string;
+  color: string;
+  count: number;
+  percentage: number;
+}
+
+/**
+ * 日別のデータポイント（折れ線グラフ用）
+ */
+export interface MoodChartPoint {
+  dateLabel: string;
+  dateKey: string;
+  mood: MoodLevel | null;
+}
+
+/**
+ * 統計サマリー結果
+ */
+export interface AnalyticsSummary {
+  totalCount: number;
+  averageLevel: number | null;
+  averageEmoji: string;
+  averageLabel: string;
+  distribution: MoodDistributionItem[];
+  chartPoints: MoodChartPoint[];
+  adviceMessage: string;
+}
+
