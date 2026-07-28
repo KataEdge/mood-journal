@@ -89,7 +89,7 @@ export const WateringModal: React.FC<WateringModalProps> = ({
               { backgroundColor: `${colors.primary}20`, transform: [{ translateY: bounceAnim }] },
             ]}
           >
-            <Text style={styles.waterEmoji}>💧 {treeInfo?.emoji || '🌱'}</Text>
+            <Text style={styles.waterEmoji}>{treeInfo?.emoji || '🌱'}</Text>
           </Animated.View>
 
           <Text style={[styles.title, { color: colors.textPrimary }]}>
