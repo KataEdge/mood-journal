@@ -1,10 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MoodEntry } from '../types';
 import { useTheme } from '../context/ThemeContext';
@@ -37,10 +32,7 @@ export const MoodCalendar: React.FC<MoodCalendarProps> = ({
 
   const todayStr = useMemo(() => getLocalDateString(new Date()), []);
 
-  const { dateMoodMap, streakDates } = useMemo(
-    () => getCalendarStreakData(entries),
-    [entries]
-  );
+  const { dateMoodMap, streakDates } = useMemo(() => getCalendarStreakData(entries), [entries]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -117,11 +109,7 @@ export const MoodCalendar: React.FC<MoodCalendarProps> = ({
     >
       {/* カレンダーヘッダー（年月表示・前後月移動） */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={handlePrevMonth}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity style={styles.navButton} onPress={handlePrevMonth} activeOpacity={0.7}>
           <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
 
@@ -131,11 +119,7 @@ export const MoodCalendar: React.FC<MoodCalendarProps> = ({
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={handleNextMonth}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity style={styles.navButton} onPress={handleNextMonth} activeOpacity={0.7}>
           <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
@@ -154,8 +138,8 @@ export const MoodCalendar: React.FC<MoodCalendarProps> = ({
                     color: isSunday
                       ? colors.error
                       : isSaturday
-                      ? colors.primaryDark
-                      : colors.textLight,
+                        ? colors.primaryDark
+                        : colors.textLight,
                   },
                 ]}
               >
@@ -186,10 +170,11 @@ export const MoodCalendar: React.FC<MoodCalendarProps> = ({
               style={[
                 styles.dayCell,
                 !isCurrentMonth && styles.dayCellOtherMonth,
-                isStreak && isCurrentMonth && {
-                  backgroundColor: `${colors.warning}22`,
-                  borderColor: colors.warning,
-                },
+                isStreak &&
+                  isCurrentMonth && {
+                    backgroundColor: `${colors.warning}22`,
+                    borderColor: colors.warning,
+                  },
                 isSelected && {
                   borderWidth: 2,
                   borderColor: colors.primaryDark,
@@ -212,15 +197,17 @@ export const MoodCalendar: React.FC<MoodCalendarProps> = ({
                       color: !isCurrentMonth
                         ? colors.textLight
                         : isToday
-                        ? colors.primaryDark
-                        : colors.textPrimary,
+                          ? colors.primaryDark
+                          : colors.textPrimary,
                       fontWeight: isToday || isSelected ? '800' : '400',
                     },
                   ]}
                 >
                   {dayNum}
                 </Text>
-                {isToday && <View style={[styles.todayDot, { backgroundColor: colors.primaryDark }]} />}
+                {isToday && (
+                  <View style={[styles.todayDot, { backgroundColor: colors.primaryDark }]} />
+                )}
               </View>
 
               {/* 絵文字 / ストリークアイコン */}
@@ -231,9 +218,7 @@ export const MoodCalendar: React.FC<MoodCalendarProps> = ({
                   ) : (
                     <View style={styles.emptyDotPlaceholder} />
                   )}
-                  {isStreak && (
-                    <Text style={styles.streakFlameIcon}>🔥</Text>
-                  )}
+                  {isStreak && <Text style={styles.streakFlameIcon}>🔥</Text>}
                 </View>
               )}
             </TouchableOpacity>

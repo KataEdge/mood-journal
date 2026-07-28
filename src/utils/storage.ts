@@ -7,7 +7,6 @@ const THEME_KEY = '@mood_journal_theme';
 const MIGRATED_KEY = '@mood_journal_v2_migrated';
 const PROFILE_KEY = '@mood_journal_user_profile';
 
-
 /**
  * 保存されたカラーテーマを取得する
  */
@@ -34,7 +33,6 @@ export async function saveStoredTheme(theme: ThemeType): Promise<void> {
     console.error('Failed to save stored theme:', error);
   }
 }
-
 
 /**
  * 気分エントリを保存（新規追加または更新）する
@@ -211,4 +209,3 @@ export async function saveUserProfile(profile: UserProfile): Promise<void> {
     throw error;
   }
 }
-

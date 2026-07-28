@@ -1,4 +1,12 @@
-import { MoodEntry, TimeRange, AnalyticsSummary, MoodDistributionItem, MoodChartPoint, MoodLevel, TagAnalyticsCategory } from '../types';
+import {
+  MoodEntry,
+  TimeRange,
+  AnalyticsSummary,
+  MoodDistributionItem,
+  MoodChartPoint,
+  MoodLevel,
+  TagAnalyticsCategory,
+} from '../types';
 import { MOOD_OPTIONS } from '../constants/theme';
 
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
@@ -23,21 +31,21 @@ export const calculateAnalyticsSummary = (
 ): AnalyticsSummary => {
   const dayCount = timeRange === '7days' ? 7 : 30;
   const now = new Date();
-  
+
   // 期間内の日付キー配列を生成（古い順: 過去 -> 今日）
   const dates: { dateKey: string; label: string }[] = [];
   for (let i = dayCount - 1; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
     const dateKey = formatDateKey(d.toISOString());
-    
+
     let label = '';
     if (timeRange === '7days') {
       label = DAY_NAMES[d.getDay()];
     } else {
       label = `${d.getMonth() + 1}/${d.getDate()}`;
     }
-    
+
     dates.push({ dateKey, label });
   }
 
@@ -91,13 +99,14 @@ export const calculateAnalyticsSummary = (
   let averageLevel: number | null = null;
   let averageEmoji = '✨';
   let averageLabel = '記録なし';
-  let adviceMessage = 'まだこの期間の記録がありません。毎日の気分を記録して傾向を分析してみましょう！';
+  let adviceMessage =
+    'まだこの期間の記録がありません。毎日の気分を記録して傾向を分析してみましょう！';
 
   if (totalCount > 0) {
     averageLevel = Number((sumLevel / totalCount).toFixed(1));
     const roundedLevel = Math.min(Math.max(Math.round(averageLevel), 1), 5) as MoodLevel;
     const matchedOption = MOOD_OPTIONS.find((opt) => opt.level === roundedLevel);
-    
+
     if (matchedOption) {
       averageEmoji = matchedOption.emoji;
       averageLabel = matchedOption.label;
@@ -106,11 +115,14 @@ export const calculateAnalyticsSummary = (
     if (averageLevel >= 4.2) {
       adviceMessage = '素晴らしい期間でしたね！好調なリズムを保ち、自分へのご褒美を忘れずに。';
     } else if (averageLevel >= 3.2) {
-      adviceMessage = 'とても良いペースで過ごせています。リラックスする時間も大切に過ごしましょう。';
+      adviceMessage =
+        'とても良いペースで過ごせています。リラックスする時間も大切に過ごしましょう。';
     } else if (averageLevel >= 2.2) {
-      adviceMessage = '安定した日々が続いています。心身の調子に気を配り、適度な息抜きを心がけましょう。';
+      adviceMessage =
+        '安定した日々が続いています。心身の調子に気を配り、適度な息抜きを心がけましょう。';
     } else {
-      adviceMessage = '少しお疲れ気味かもしれません。無理をせず、暖かくしてゆっくり休息を取りましょう。';
+      adviceMessage =
+        '少しお疲れ気味かもしれません。無理をせず、暖かくしてゆっくり休息を取りましょう。';
     }
   }
 

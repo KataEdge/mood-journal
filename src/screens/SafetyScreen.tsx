@@ -24,12 +24,7 @@ import {
 import { ReminderSettings, ThemeType, UserProfile } from '../types';
 import { getMoodEntries, getUserProfile, saveUserProfile } from '../utils/storage';
 import { checkAndEvaluateBadges } from '../utils/streak';
-import {
-  FontSize,
-  Spacing,
-  BorderRadius,
-  Shadow,
-} from '../constants/theme';
+import { FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
 export default function SafetyScreen() {
@@ -60,7 +55,6 @@ export default function SafetyScreen() {
     setShowProfileModal(false);
   };
 
-
   const loadReminder = async () => {
     const settings = await getReminderSettings();
     setReminder(settings);
@@ -70,10 +64,7 @@ export default function SafetyScreen() {
     if (value) {
       const granted = await requestNotificationPermission();
       if (!granted) {
-        Alert.alert(
-          '通知が許可されていません',
-          '設定アプリから感情日記の通知を許可してください。'
-        );
+        Alert.alert('通知が許可されていません', '設定アプリから感情日記の通知を許可してください。');
         return;
       }
     }
@@ -118,10 +109,7 @@ export default function SafetyScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <ThemeHeader title="ご利用・設定 🌿" />
         </View>
@@ -132,12 +120,19 @@ export default function SafetyScreen() {
             <Text style={styles.cardIcon}>👤</Text>
             <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>プロフィール設定</Text>
           </View>
-          <Text style={[styles.cardBody, { color: colors.textSecondary, marginBottom: Spacing.sm }]}>
+          <Text
+            style={[styles.cardBody, { color: colors.textSecondary, marginBottom: Spacing.sm }]}
+          >
             アプリ内で表示されるニックネームとアバターを変更できます。
           </Text>
 
           <View style={[styles.profileCardRow, { backgroundColor: colors.background }]}>
-            <View style={[styles.avatarCircle, { backgroundColor: colors.tagBg, borderColor: colors.primary }]}>
+            <View
+              style={[
+                styles.avatarCircle,
+                { backgroundColor: colors.tagBg, borderColor: colors.primary },
+              ]}
+            >
               {userProfile?.avatarType === 'image' ? (
                 <Image source={{ uri: userProfile.avatarValue }} style={styles.avatarImage} />
               ) : (
@@ -157,11 +152,12 @@ export default function SafetyScreen() {
               onPress={() => setShowProfileModal(true)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.editProfileButtonText, { color: colors.textOnPrimary }]}>編集</Text>
+              <Text style={[styles.editProfileButtonText, { color: colors.textOnPrimary }]}>
+                編集
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
-
 
         {/* カラーテーマ設定カード */}
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -182,13 +178,17 @@ export default function SafetyScreen() {
                   style={[
                     styles.themeOptionCard,
                     { backgroundColor: colors.background, borderColor: colors.border },
-                    isSelected && { borderColor: colors.primaryDark, borderWidth: 2, backgroundColor: colors.surfaceElevated },
+                    isSelected && {
+                      borderColor: colors.primaryDark,
+                      borderWidth: 2,
+                      backgroundColor: colors.surfaceElevated,
+                    },
                   ]}
                   onPress={() => setTheme(opt.type)}
                   activeOpacity={0.7}
                 >
                   <Ionicons
-                    name={opt.icon as any}
+                    name={opt.icon as React.ComponentProps<typeof Ionicons>['name']}
                     size={22}
                     color={isSelected ? colors.primaryDark : colors.textSecondary}
                   />
@@ -201,7 +201,9 @@ export default function SafetyScreen() {
                   >
                     {opt.label}
                   </Text>
-                  <Text style={[styles.themeOptionDesc, { color: colors.textLight }]}>{opt.desc}</Text>
+                  <Text style={[styles.themeOptionDesc, { color: colors.textLight }]}>
+                    {opt.desc}
+                  </Text>
                   {isSelected && (
                     <View style={[styles.themeCheckBadge, { backgroundColor: colors.primaryDark }]}>
                       <Ionicons name="checkmark" size={12} color="#FFFFFF" />
@@ -214,10 +216,18 @@ export default function SafetyScreen() {
         </View>
 
         {/* 呼吸法セルフケアカード */}
-        <View style={[styles.card, styles.breathingCard, { backgroundColor: colors.surface, borderLeftColor: colors.primaryDark }]}>
+        <View
+          style={[
+            styles.card,
+            styles.breathingCard,
+            { backgroundColor: colors.surface, borderLeftColor: colors.primaryDark },
+          ]}
+        >
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardIcon}>🍃</Text>
-            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>4-7-8 呼吸法ガイド</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+              4-7-8 呼吸法ガイド
+            </Text>
           </View>
           <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
             気分が落ち着かないときや就寝前に。4秒吸って7秒止め、8秒かけてゆっくり吐く深呼吸（3セット）でリラックスを促します。
@@ -227,8 +237,15 @@ export default function SafetyScreen() {
             onPress={() => setShowBreathingModal(true)}
             activeOpacity={0.8}
           >
-            <Ionicons name="leaf-outline" size={20} color={colors.textOnPrimary} style={styles.actionBtnIcon} />
-            <Text style={[styles.actionButtonText, { color: colors.textOnPrimary }]}>呼吸ガイドを始める (3セット)</Text>
+            <Ionicons
+              name="leaf-outline"
+              size={20}
+              color={colors.textOnPrimary}
+              style={styles.actionBtnIcon}
+            />
+            <Text style={[styles.actionButtonText, { color: colors.textOnPrimary }]}>
+              呼吸ガイドを始める (3セット)
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -236,7 +253,9 @@ export default function SafetyScreen() {
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardIcon}>🔔</Text>
-            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>毎日の記録リマインダー</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+              毎日の記録リマインダー
+            </Text>
           </View>
           <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
             1日の終わりに気持ちを振り返る時間を。お好みの時刻にやさしいリマインダーをお届けします。
@@ -250,8 +269,15 @@ export default function SafetyScreen() {
                 onPress={() => setShowTimePicker(true)}
                 activeOpacity={0.7}
               >
-                <Ionicons name="time-outline" size={16} color={colors.primaryDark} style={{ marginRight: 4 }} />
-                <Text style={[styles.timePickerButtonText, { color: colors.primaryDark }]}>{formattedTime}</Text>
+                <Ionicons
+                  name="time-outline"
+                  size={16}
+                  color={colors.primaryDark}
+                  style={{ marginRight: 4 }}
+                />
+                <Text style={[styles.timePickerButtonText, { color: colors.primaryDark }]}>
+                  {formattedTime}
+                </Text>
                 <Text style={[styles.timePickerHint, { color: colors.textLight }]}> (変更)</Text>
               </TouchableOpacity>
             </View>
@@ -273,7 +299,9 @@ export default function SafetyScreen() {
               継続をサポートする3つの仕組み
             </Text>
           </View>
-          <Text style={[styles.cardBody, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
+          <Text
+            style={[styles.cardBody, { color: colors.textSecondary, marginBottom: Spacing.md }]}
+          >
             感情日記を楽しく無理なく続けるためのモチベーション機能のご案内です。
           </Text>
 
@@ -329,7 +357,13 @@ export default function SafetyScreen() {
         </View>
 
         {/* 注意事項 */}
-        <View style={[styles.card, styles.warningCard, { backgroundColor: colors.surface, borderLeftColor: colors.warning }]}>
+        <View
+          style={[
+            styles.card,
+            styles.warningCard,
+            { backgroundColor: colors.surface, borderLeftColor: colors.warning },
+          ]}
+        >
           <Text style={styles.cardIcon}>⚠️</Text>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>ご注意ください</Text>
           <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
@@ -370,7 +404,13 @@ export default function SafetyScreen() {
         </View>
 
         {/* ヒント */}
-        <View style={[styles.card, styles.tipCard, { backgroundColor: colors.surface, borderLeftColor: colors.success }]}>
+        <View
+          style={[
+            styles.card,
+            styles.tipCard,
+            { backgroundColor: colors.surface, borderLeftColor: colors.success },
+          ]}
+        >
           <Text style={styles.cardIcon}>💡</Text>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>セルフケアのヒント</Text>
           <View style={styles.tipList}>
@@ -412,7 +452,6 @@ export default function SafetyScreen() {
         onClose={() => setShowProfileModal(false)}
       />
     </SafeAreaView>
-
   );
 }
 
@@ -703,6 +742,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-
-
-

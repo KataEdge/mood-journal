@@ -37,19 +37,13 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({ items }) => {
 
         <View style={styles.tagList}>
           {groupItems.map((item) => (
-            <View
-              key={item.tagName}
-              style={[styles.tagRow, { borderBottomColor: colors.divider }]}
-            >
+            <View key={item.tagName} style={[styles.tagRow, { borderBottomColor: colors.divider }]}>
               <View style={styles.tagLabelGroup}>
                 <Text style={[styles.tagNameText, { color: colors.textPrimary }]}>
                   #{item.tagName}
                 </Text>
                 <Text
-                  style={[
-                    styles.tagCountText,
-                    { color: accentColor, backgroundColor: badgeBg },
-                  ]}
+                  style={[styles.tagCountText, { color: accentColor, backgroundColor: badgeBg }]}
                 >
                   {item.count}件
                 </Text>

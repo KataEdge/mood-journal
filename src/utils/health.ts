@@ -18,10 +18,10 @@ export const getMockHealthData = (): HealthData => {
   // 時間帯に応じた現実的な擬似データを生成
   const now = new Date();
   const dateSeed = now.getDate() + now.getHours();
-  
+
   const mockSleepHours = Number((6.5 + (dateSeed % 3) * 0.6).toFixed(1)); // 6.5h 〜 7.7h
-  const mockWorkoutMinutes = (dateSeed * 15) % 60 + 15;                   // 15m 〜 60m
-  const mockActiveCalories = mockWorkoutMinutes * 6 + 40;                 // 130kcal 〜 400kcal
+  const mockWorkoutMinutes = ((dateSeed * 15) % 60) + 15; // 15m 〜 60m
+  const mockActiveCalories = mockWorkoutMinutes * 6 + 40; // 130kcal 〜 400kcal
 
   return {
     sleepHours: mockSleepHours,

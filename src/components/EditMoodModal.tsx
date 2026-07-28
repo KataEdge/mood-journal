@@ -26,12 +26,7 @@ interface EditMoodModalProps {
   onSave: (updatedEntry: MoodEntry) => void;
 }
 
-export default function EditMoodModal({
-  visible,
-  entry,
-  onClose,
-  onSave,
-}: EditMoodModalProps) {
+export default function EditMoodModal({ visible, entry, onClose, onSave }: EditMoodModalProps) {
   const { colors } = useTheme();
   const [selectedMood, setSelectedMood] = useState<MoodLevel | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -48,15 +43,18 @@ export default function EditMoodModal({
   if (!entry) return null;
 
   const date = new Date(entry.timestamp);
-  const formattedDate = date.toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'short',
-  }) + ' ' + date.toLocaleTimeString('ja-JP', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const formattedDate =
+    date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+    }) +
+    ' ' +
+    date.toLocaleTimeString('ja-JP', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   const handleMoodSelect = (option: MoodOption) => {
     setSelectedMood(option.level);
@@ -64,9 +62,7 @@ export default function EditMoodModal({
 
   const handleToggleTag = (tagName: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tagName)
-        ? prev.filter((t) => t !== tagName)
-        : [...prev, tagName]
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]
     );
   };
 
@@ -84,12 +80,7 @@ export default function EditMoodModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.overlay}>
           <KeyboardAvoidingView
@@ -124,24 +115,16 @@ export default function EditMoodModal({
                 showsVerticalScrollIndicator={false}
               >
                 {/* 気分選択 */}
-                <MoodSelector
-                  selectedMood={selectedMood}
-                  onSelect={handleMoodSelect}
-                />
+                <MoodSelector selectedMood={selectedMood} onSelect={handleMoodSelect} />
 
                 {/* タグ選択 */}
                 <View style={styles.sectionSpacing}>
-                  <TagSelector
-                    selectedTags={selectedTags}
-                    onToggleTag={handleToggleTag}
-                  />
+                  <TagSelector selectedTags={selectedTags} onToggleTag={handleToggleTag} />
                 </View>
 
                 {/* メモ入力 */}
                 <View style={styles.sectionSpacing}>
-                  <Text style={[styles.noteLabel, { color: colors.textPrimary }]}>
-                    💭 一言メモ
-                  </Text>
+                  <Text style={[styles.noteLabel, { color: colors.textPrimary }]}>💭 一言メモ</Text>
                   <TextInput
                     style={[
                       styles.noteInput,
@@ -164,7 +147,11 @@ export default function EditMoodModal({
               {/* アクションボタン */}
               <View style={[styles.footer, { borderTopColor: colors.divider }]}>
                 <TouchableOpacity
-                  style={[styles.button, styles.cancelButton, { backgroundColor: colors.background }]}
+                  style={[
+                    styles.button,
+                    styles.cancelButton,
+                    { backgroundColor: colors.background },
+                  ]}
                   onPress={onClose}
                   activeOpacity={0.8}
                 >

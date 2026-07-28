@@ -185,7 +185,6 @@ export const getThemeColors = (theme: ThemeType): ThemeColors => {
  */
 export const Colors = LightThemeColors;
 
-
 /**
  * フォントサイズ
  */
@@ -278,7 +277,20 @@ export const DEFAULT_PRESET_TAGS: string[] = [
  * プリセットアバター絵文字
  */
 export const AVATAR_PRESETS: string[] = [
-  '🐱', '🐶', '🐻', '🐰', '🦊', '🐼', '🐯', '🐥',
-  '🌸', '🌈', '✨', '🍀', '☕️', '🎨', '🚀', '🌟',
+  '🐱',
+  '🐶',
+  '🐻',
+  '🐰',
+  '🦊',
+  '🐼',
+  '🐯',
+  '🐥',
+  '🌸',
+  '🌈',
+  '✨',
+  '🍀',
+  '☕️',
+  '🎨',
+  '🚀',
+  '🌟',
 ];
-

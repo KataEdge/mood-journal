@@ -119,8 +119,16 @@ export default function BreathingGuideModal({
     });
   };
 
-  const autoSaveBreathingEntry = async (cycles: number, mood: MoodLevel, existingId?: string | null) => {
-    const entryId = existingId || targetEntry?.id || savedEntryId || Date.now().toString() + Math.random().toString(36).slice(2, 9);
+  const autoSaveBreathingEntry = async (
+    cycles: number,
+    mood: MoodLevel,
+    existingId?: string | null
+  ) => {
+    const entryId =
+      existingId ||
+      targetEntry?.id ||
+      savedEntryId ||
+      Date.now().toString() + Math.random().toString(36).slice(2, 9);
     setSavedEntryId(entryId);
 
     const session: BreathingSession = {
@@ -129,7 +137,9 @@ export default function BreathingGuideModal({
     };
 
     const existingTags = targetEntry?.tags || [];
-    const updatedTags = existingTags.includes('呼吸法') ? existingTags : [...existingTags, '呼吸法'];
+    const updatedTags = existingTags.includes('呼吸法')
+      ? existingTags
+      : [...existingTags, '呼吸法'];
 
     const entry: MoodEntry = {
       id: entryId,
@@ -207,16 +217,13 @@ export default function BreathingGuideModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={false}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         {/* ヘッダー */}
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>4-7-8 呼吸法ガイド 🍃</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+            4-7-8 呼吸法ガイド 🍃
+          </Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Ionicons name="close-outline" size={28} color={colors.textPrimary} />
           </TouchableOpacity>
@@ -228,8 +235,8 @@ export default function BreathingGuideModal({
             {phase === 'completed'
               ? '3セット完了！'
               : cycleCount > 0
-              ? `セット ${cycleCount} / 3`
-              : '心と体を落ち着かせるリラックス呼吸（全3セット）'}
+                ? `セット ${cycleCount} / 3`
+                : '心と体を落ち着かせるリラックス呼吸（全3セット）'}
           </Text>
 
           <View style={styles.circleContainer}>
@@ -274,7 +281,9 @@ export default function BreathingGuideModal({
               activeOpacity={0.8}
             >
               <Ionicons name="play" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
-              <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>セッションを開始 (3セット)</Text>
+              <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>
+                セッションを開始 (3セット)
+              </Text>
             </TouchableOpacity>
           ) : phase === 'completed' ? (
             <View style={{ gap: Spacing.md }}>
@@ -287,12 +296,20 @@ export default function BreathingGuideModal({
                       style={[
                         styles.moodMiniItem,
                         { backgroundColor: colors.surface, borderColor: colors.border },
-                        isSelected && { borderColor: colors.primary, backgroundColor: colors.primary + '15' },
+                        isSelected && {
+                          borderColor: colors.primary,
+                          backgroundColor: colors.primary + '15',
+                        },
                       ]}
                       onPress={() => handleMoodSelectInModal(item.level)}
                     >
                       <Text style={styles.moodMiniEmoji}>{item.emoji}</Text>
-                      <Text style={[styles.moodMiniLabel, { color: isSelected ? colors.primaryDark : colors.textSecondary }]}>
+                      <Text
+                        style={[
+                          styles.moodMiniLabel,
+                          { color: isSelected ? colors.primaryDark : colors.textSecondary },
+                        ]}
+                      >
                         {item.label}
                       </Text>
                     </TouchableOpacity>
@@ -305,17 +322,34 @@ export default function BreathingGuideModal({
                 onPress={onClose}
                 activeOpacity={0.8}
               >
-                <Ionicons name="checkmark" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
-                <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>完了する</Text>
+                <Ionicons
+                  name="checkmark"
+                  size={22}
+                  color={colors.textOnPrimary}
+                  style={styles.btnIcon}
+                />
+                <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>
+                  完了する
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.stopButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}
+                style={[
+                  styles.stopButton,
+                  { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+                ]}
                 onPress={startBreathingCycle}
                 activeOpacity={0.8}
               >
-                <Ionicons name="refresh" size={20} color={colors.textPrimary} style={styles.btnIcon} />
-                <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>もう一度行う</Text>
+                <Ionicons
+                  name="refresh"
+                  size={20}
+                  color={colors.textPrimary}
+                  style={styles.btnIcon}
+                />
+                <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>
+                  もう一度行う
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (

@@ -57,7 +57,10 @@ export default function ProfileSetupModal({
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
-        Alert.alert('権限が必要です', '写真を選択するにはライブラリへのアクセスを許可してください。');
+        Alert.alert(
+          '権限が必要です',
+          '写真を選択するにはライブラリへのアクセスを許可してください。'
+        );
         return;
       }
 
@@ -102,15 +105,13 @@ export default function ProfileSetupModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-    >
+    <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
       <View style={styles.overlay}>
         <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
             <Text style={[styles.title, { color: colors.textPrimary }]}>
               {isInitialSetup ? 'アカウント作成' : 'プロフィール編集'}
             </Text>
@@ -122,7 +123,12 @@ export default function ProfileSetupModal({
 
             {/* アバタープレビュー */}
             <View style={styles.previewContainer}>
-              <View style={[styles.avatarCircle, { backgroundColor: colors.tagBg, borderColor: colors.primary }]}>
+              <View
+                style={[
+                  styles.avatarCircle,
+                  { backgroundColor: colors.tagBg, borderColor: colors.primary },
+                ]}
+              >
                 {avatarType === 'image' ? (
                   <Image source={{ uri: avatarValue }} style={styles.avatarImage} />
                 ) : (
@@ -164,9 +170,7 @@ export default function ProfileSetupModal({
             </View>
 
             {/* ニックネーム入力 */}
-            <Text style={[styles.sectionLabel, { color: colors.textPrimary }]}>
-              ニックネーム
-            </Text>
+            <Text style={[styles.sectionLabel, { color: colors.textPrimary }]}>ニックネーム</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={[

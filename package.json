@@ -21,6 +21,13 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.2.5",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -30,7 +37,10 @@
     "web": "expo start --web",
     "build:web": "expo export -p web",
     "type-check": "tsc --noEmit",
-    "check": "npm run type-check"
+    "lint": "eslint . --ext .ts,.tsx",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"App.tsx\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"App.tsx\"",
+    "check": "npm run lint && npm run format:check && npm run type-check"
   },
   "private": true
 }

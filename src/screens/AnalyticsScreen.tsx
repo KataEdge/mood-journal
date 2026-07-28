@@ -106,7 +106,9 @@ export default function AnalyticsScreen() {
                 <View style={styles.summaryBadge}>
                   <Text style={styles.summaryEmoji}>{summary.averageEmoji}</Text>
                   <View style={styles.summaryTextGroup}>
-                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>平均気分</Text>
+                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                      平均気分
+                    </Text>
                     <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>
                       {summary.averageLabel}
                     </Text>
@@ -114,29 +116,32 @@ export default function AnalyticsScreen() {
                 </View>
 
                 <View style={[styles.countBadge, { backgroundColor: colors.background }]}>
-                  <Text style={[styles.countNumber, { color: colors.secondaryDark }]}>{summary.totalCount}</Text>
+                  <Text style={[styles.countNumber, { color: colors.secondaryDark }]}>
+                    {summary.totalCount}
+                  </Text>
                   <Text style={[styles.countLabel, { color: colors.textSecondary }]}>件の記録</Text>
                 </View>
               </View>
 
               <View style={[styles.divider, { backgroundColor: colors.divider }]} />
 
-              <Text style={[styles.adviceText, { color: colors.textPrimary }]}>{summary.adviceMessage}</Text>
+              <Text style={[styles.adviceText, { color: colors.textPrimary }]}>
+                {summary.adviceMessage}
+              </Text>
             </View>
 
             {/* 折れ線グラフ */}
             <MoodChart points={summary.chartPoints} />
 
             {/* 感情分布 */}
-            <MoodDistribution
-              distribution={summary.distribution}
-              totalCount={summary.totalCount}
-            />
+            <MoodDistribution distribution={summary.distribution} totalCount={summary.totalCount} />
 
             {/* ヘルスケア分析・インサイト */}
             {healthStats.hasDataCount > 0 && (
               <View style={[styles.sectionCard, { backgroundColor: colors.surface }, Shadow.sm]}>
-                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>❤️ ヘルスケアと感情のインサイト</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+                  ❤️ ヘルスケアと感情のインサイト
+                </Text>
                 <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
                   記録された {healthStats.hasDataCount} 件のヘルスケアデータに基づく相関
                 </Text>
@@ -145,24 +150,34 @@ export default function AnalyticsScreen() {
                   <View style={[styles.healthStatBox, { backgroundColor: colors.background }]}>
                     <Text style={styles.statBoxIcon}>🌙</Text>
                     <Text style={[styles.statBoxValue, { color: colors.textPrimary }]}>
-                      {healthStats.averageSleepHours ?? '-'} <Text style={styles.statBoxUnit}>h/日</Text>
+                      {healthStats.averageSleepHours ?? '-'}{' '}
+                      <Text style={styles.statBoxUnit}>h/日</Text>
                     </Text>
-                    <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>平均睡眠時間</Text>
+                    <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>
+                      平均睡眠時間
+                    </Text>
                   </View>
 
                   <View style={[styles.healthStatBox, { backgroundColor: colors.background }]}>
                     <Text style={styles.statBoxIcon}>🏃</Text>
                     <Text style={[styles.statBoxValue, { color: colors.textPrimary }]}>
-                      {healthStats.averageWorkoutMinutes ?? '-'} <Text style={styles.statBoxUnit}>分/日</Text>
+                      {healthStats.averageWorkoutMinutes ?? '-'}{' '}
+                      <Text style={styles.statBoxUnit}>分/日</Text>
                     </Text>
-                    <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>平均運動時間</Text>
+                    <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>
+                      平均運動時間
+                    </Text>
                   </View>
                 </View>
 
                 {healthStats.goodMoodSleepHours !== null && (
                   <View style={[styles.insightNotice, { backgroundColor: colors.primary + '15' }]}>
                     <Text style={[styles.insightNoticeText, { color: colors.textPrimary }]}>
-                      💡 気分が「とても良い・良い」日の平均睡眠時間は <Text style={{ fontWeight: '700' }}>{healthStats.goodMoodSleepHours} 時間</Text> でした。
+                      💡 気分が「とても良い・良い」日の平均睡眠時間は{' '}
+                      <Text style={{ fontWeight: '700' }}>
+                        {healthStats.goodMoodSleepHours} 時間
+                      </Text>{' '}
+                      でした。
                     </Text>
                   </View>
                 )}
@@ -344,4 +359,3 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
-

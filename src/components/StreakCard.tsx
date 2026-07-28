@@ -40,21 +40,15 @@ export const StreakCard: React.FC<StreakCardProps> = ({
           style={[
             styles.iconContainer,
             {
-              backgroundColor: isStreakActive
-                ? `${colors.warning}30`
-                : `${colors.textLight}20`,
+              backgroundColor: isStreakActive ? `${colors.warning}30` : `${colors.textLight}20`,
             },
           ]}
         >
-          <Text style={styles.emojiIcon}>
-            {isStreakActive ? '🔥' : '🌱'}
-          </Text>
+          <Text style={styles.emojiIcon}>{isStreakActive ? '🔥' : '🌱'}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={[styles.streakTitle, { color: colors.textPrimary }]}>
-            {isStreakActive
-              ? `${streakInfo.currentStreak}日 連続記録中！`
-              : '連続記録に挑戦しよう'}
+            {isStreakActive ? `${streakInfo.currentStreak}日 連続記録中！` : '連続記録に挑戦しよう'}
           </Text>
           <Text style={[styles.streakSubtitle, { color: colors.textSecondary }]}>
             最長記録: {streakInfo.longestStreak}日
@@ -93,7 +87,12 @@ export const StreakCard: React.FC<StreakCardProps> = ({
             </Text>
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.textLight} style={styles.chevron} />
+        <Ionicons
+          name="chevron-forward"
+          size={18}
+          color={colors.textLight}
+          style={styles.chevron}
+        />
       </View>
     </TouchableOpacity>
   );

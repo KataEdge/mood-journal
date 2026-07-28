@@ -1,11 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  SectionList,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { View, Text, SectionList, StyleSheet, Animated } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MoodCard from '../components/MoodCard';
@@ -13,11 +7,7 @@ import EditMoodModal from '../components/EditMoodModal';
 import { ThemeHeader } from '../components/ThemeHeader';
 import { MoodEntry } from '../types';
 import { getMoodEntries, deleteMoodEntry, saveMoodEntry } from '../utils/storage';
-import {
-  FontSize,
-  Spacing,
-  BorderRadius,
-} from '../constants/theme';
+import { FontSize, Spacing, BorderRadius } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
 interface Section {
@@ -56,9 +46,7 @@ export default function HistoryScreen() {
   // 選択日または全データのグループ化セクション
   const activeEntries = React.useMemo(() => {
     if (!selectedDate) return allRawEntries;
-    return allRawEntries.filter(
-      (entry) => getLocalDateString(entry.timestamp) === selectedDate
-    );
+    return allRawEntries.filter((entry) => getLocalDateString(entry.timestamp) === selectedDate);
   }, [allRawEntries, selectedDate]);
 
   const activeSections = React.useMemo(() => {
@@ -101,7 +89,11 @@ export default function HistoryScreen() {
 
   const renderSectionHeader = ({ section }: { section: Section }) => {
     const moodEmojis: Record<number, string> = {
-      1: '😢', 2: '😔', 3: '😐', 4: '🙂', 5: '😄',
+      1: '😢',
+      2: '😔',
+      3: '😐',
+      4: '🙂',
+      5: '😄',
     };
     const emojis = section.data.map((e) => moodEmojis[e.mood] || '😐').join(' ');
 
@@ -193,7 +185,9 @@ export default function HistoryScreen() {
 
       {totalEntries > 0 && (
         <View style={[styles.hintContainer, { borderTopColor: colors.divider }]}>
-          <Text style={[styles.hintText, { color: colors.textLight }]}>💡 カレンダーの日付タップで絞り込み／編集アイコンで記録の編集ができます</Text>
+          <Text style={[styles.hintText, { color: colors.textLight }]}>
+            💡 カレンダーの日付タップで絞り込み／編集アイコンで記録の編集ができます
+          </Text>
         </View>
       )}
 
@@ -293,4 +287,3 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
   },
 });
-

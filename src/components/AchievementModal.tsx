@@ -50,9 +50,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
-      <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: colors.background }]}
-      >
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
         {/* ヘッダー */}
         <View
           style={[
@@ -60,16 +58,10 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
             { backgroundColor: colors.surface, borderBottomColor: colors.border },
           ]}
         >
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.7}>
             <Ionicons name="close" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-            アチーブメント
-          </Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>アチーブメント</Text>
           <View style={styles.headerRightPlaceholder} />
         </View>
 
@@ -86,9 +78,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                 <Text style={[styles.summaryTitle, { color: colors.textPrimary }]}>
                   獲得バッジ進捗
                 </Text>
-                <Text
-                  style={[styles.summarySubtitle, { color: colors.textSecondary }]}
-                >
+                <Text style={[styles.summarySubtitle, { color: colors.textSecondary }]}>
                   {unlockedCount} / {totalCount} 個のバッジを獲得済み
                 </Text>
               </View>
@@ -126,9 +116,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                   style={[
                     styles.tabPill,
                     {
-                      backgroundColor: isActive
-                        ? colors.primaryDark
-                        : colors.surface,
+                      backgroundColor: isActive ? colors.primaryDark : colors.surface,
                       borderColor: isActive ? colors.primaryDark : colors.border,
                     },
                   ]}
@@ -139,9 +127,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                     style={[
                       styles.tabText,
                       {
-                        color: isActive
-                          ? '#FFFFFF'
-                          : colors.textSecondary,
+                        color: isActive ? '#FFFFFF' : colors.textSecondary,
                       },
                     ]}
                   >
@@ -172,9 +158,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                     styles.badgeCard,
                     {
                       backgroundColor: colors.surface,
-                      borderColor: isUnlocked
-                        ? colors.primaryDark
-                        : colors.border,
+                      borderColor: isUnlocked ? colors.primaryDark : colors.border,
                       opacity: isUnlocked ? 1 : 0.65,
                     },
                   ]}
@@ -183,15 +167,11 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                     style={[
                       styles.iconWrapper,
                       {
-                        backgroundColor: isUnlocked
-                          ? `${colors.primary}30`
-                          : colors.divider,
+                        backgroundColor: isUnlocked ? `${colors.primary}30` : colors.divider,
                       },
                     ]}
                   >
-                    <Text style={styles.badgeIcon}>
-                      {isUnlocked ? badge.icon : '🔒'}
-                    </Text>
+                    <Text style={styles.badgeIcon}>{isUnlocked ? badge.icon : '🔒'}</Text>
                   </View>
 
                   <Text
@@ -201,10 +181,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                     {badge.title}
                   </Text>
                   <Text
-                    style={[
-                      styles.badgeDescription,
-                      { color: colors.textSecondary },
-                    ]}
+                    style={[styles.badgeDescription, { color: colors.textSecondary }]}
                     numberOfLines={2}
                   >
                     {badge.description}
@@ -212,29 +189,14 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
 
                   {/* 進捗 or 獲得日 */}
                   {isUnlocked ? (
-                    <View
-                      style={[
-                        styles.unlockedPill,
-                        { backgroundColor: `${colors.success}30` },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.unlockedPillText,
-                          { color: colors.textPrimary },
-                        ]}
-                      >
+                    <View style={[styles.unlockedPill, { backgroundColor: `${colors.success}30` }]}>
+                      <Text style={[styles.unlockedPillText, { color: colors.textPrimary }]}>
                         達成済み
                       </Text>
                     </View>
                   ) : (
                     <View style={styles.progressContainer}>
-                      <View
-                        style={[
-                          styles.miniProgressBg,
-                          { backgroundColor: colors.divider },
-                        ]}
-                      >
+                      <View style={[styles.miniProgressBg, { backgroundColor: colors.divider }]}>
                         <View
                           style={[
                             styles.miniProgressFill,
@@ -245,12 +207,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                           ]}
                         />
                       </View>
-                      <Text
-                        style={[
-                          styles.progressText,
-                          { color: colors.textLight },
-                        ]}
-                      >
+                      <Text style={[styles.progressText, { color: colors.textLight }]}>
                         {badge.currentCount}/{badge.targetCount}
                       </Text>
                     </View>

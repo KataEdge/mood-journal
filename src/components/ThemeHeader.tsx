@@ -29,7 +29,10 @@ export const ThemeHeader: React.FC<ThemeHeaderProps> = ({
       <View style={styles.leftRow}>
         {userProfile ? (
           <TouchableOpacity
-            style={[styles.avatarButton, { backgroundColor: colors.tagBg, borderColor: colors.primary }]}
+            style={[
+              styles.avatarButton,
+              { backgroundColor: colors.tagBg, borderColor: colors.primary },
+            ]}
             onPress={onPressProfile}
             activeOpacity={0.8}
             accessibilityLabel="プロフィール編集"
@@ -102,5 +105,3 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
 });
-
-

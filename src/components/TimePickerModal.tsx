@@ -47,12 +47,7 @@ export default function TimePickerModal({
   const formatNumber = (num: number) => num.toString().padStart(2, '0');
 
   return (
-    <Modal
-      visible={visible}
-      animationType="fade"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* ヘッダー */}
@@ -83,18 +78,10 @@ export default function TimePickerModal({
                 {HOURS.map((h) => (
                   <TouchableOpacity
                     key={h}
-                    style={[
-                      styles.item,
-                      selectedHour === h && styles.selectedItem,
-                    ]}
+                    style={[styles.item, selectedHour === h && styles.selectedItem]}
                     onPress={() => setSelectedHour(h)}
                   >
-                    <Text
-                      style={[
-                        styles.itemText,
-                        selectedHour === h && styles.selectedItemText,
-                      ]}
-                    >
+                    <Text style={[styles.itemText, selectedHour === h && styles.selectedItemText]}>
                       {formatNumber(h)}時
                     </Text>
                   </TouchableOpacity>
@@ -113,17 +100,11 @@ export default function TimePickerModal({
                 {MINUTES.map((m) => (
                   <TouchableOpacity
                     key={m}
-                    style={[
-                      styles.item,
-                      selectedMinute === m && styles.selectedItem,
-                    ]}
+                    style={[styles.item, selectedMinute === m && styles.selectedItem]}
                     onPress={() => setSelectedMinute(m)}
                   >
                     <Text
-                      style={[
-                        styles.itemText,
-                        selectedMinute === m && styles.selectedItemText,
-                      ]}
+                      style={[styles.itemText, selectedMinute === m && styles.selectedItemText]}
                     >
                       {formatNumber(m)}分
                     </Text>
@@ -135,18 +116,10 @@ export default function TimePickerModal({
 
           {/* 保存ボタン */}
           <View style={styles.actions}>
-            <TouchableOpacity
-              style={styles.cancelBtn}
-              onPress={onClose}
-              activeOpacity={0.7}
-            >
+            <TouchableOpacity style={styles.cancelBtn} onPress={onClose} activeOpacity={0.7}>
               <Text style={styles.cancelBtnText}>キャンセル</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.saveBtn}
-              onPress={handleSave}
-              activeOpacity={0.8}
-            >
+            <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8}>
               <Text style={styles.saveBtnText}>決定</Text>
             </TouchableOpacity>
           </View>

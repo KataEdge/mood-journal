@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AchievementBadge } from '../types';
 import { useTheme } from '../context/ThemeContext';
 import { FontSize, Spacing, BorderRadius } from '../constants/theme';
@@ -29,22 +23,14 @@ export const BadgeUnlockedModal: React.FC<BadgeUnlockedModalProps> = ({
     <Modal visible={visible} animationType="fade" transparent={true}>
       <View style={styles.overlay}>
         <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
+          style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
         >
           <Text style={styles.partyEmoji}>🎉</Text>
           <Text style={[styles.title, { color: colors.textPrimary }]}>
             新しいアチーブメント獲得！
           </Text>
 
-          <View
-            style={[
-              styles.badgeContainer,
-              { backgroundColor: `${colors.primary}25` },
-            ]}
-          >
+          <View style={[styles.badgeContainer, { backgroundColor: `${colors.primary}25` }]}>
             <Text style={styles.badgeIcon}>{unlockedBadge.icon}</Text>
           </View>
 
@@ -60,9 +46,7 @@ export const BadgeUnlockedModal: React.FC<BadgeUnlockedModalProps> = ({
             onPress={onClose}
             activeOpacity={0.8}
           >
-            <Text style={[styles.buttonText, { color: colors.textOnPrimary }]}>
-              やったね！
-            </Text>
+            <Text style={[styles.buttonText, { color: colors.textOnPrimary }]}>やったね！</Text>
           </TouchableOpacity>
         </View>
       </View>

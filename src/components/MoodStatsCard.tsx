@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MoodEntry, MoodLevel } from '../types';
 import { calculateStats } from '../utils/stats';
-import {
-  FontSize,
-  Spacing,
-  BorderRadius,
-  Shadow,
-  MOOD_OPTIONS,
-} from '../constants/theme';
+import { FontSize, Spacing, BorderRadius, Shadow, MOOD_OPTIONS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
 interface MoodStatsCardProps {
@@ -44,7 +33,12 @@ export default function MoodStatsCard({ entries }: MoodStatsCardProps) {
   };
 
   return (
-    <View style={[styles.cardContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <View
+      style={[
+        styles.cardContainer,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
+    >
       {/* ヘッダー: タイトル & 期間切り替えタブ */}
       <View style={styles.cardHeader}>
         <View style={styles.titleRow}>
@@ -53,21 +47,41 @@ export default function MoodStatsCard({ entries }: MoodStatsCardProps) {
 
         <View style={[styles.tabContainer, { backgroundColor: colors.background }]}>
           <TouchableOpacity
-            style={[styles.tabButton, rangeDays === 7 && { backgroundColor: colors.surface }, rangeDays === 7 && Shadow.sm]}
+            style={[
+              styles.tabButton,
+              rangeDays === 7 && { backgroundColor: colors.surface },
+              rangeDays === 7 && Shadow.sm,
+            ]}
             onPress={() => setRangeDays(7)}
             activeOpacity={0.7}
           >
-            <Text style={[styles.tabText, { color: colors.textSecondary }, rangeDays === 7 && { color: colors.textPrimary, fontWeight: '700' }]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: colors.textSecondary },
+                rangeDays === 7 && { color: colors.textPrimary, fontWeight: '700' },
+              ]}
+            >
               週間 (7日)
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tabButton, rangeDays === 30 && { backgroundColor: colors.surface }, rangeDays === 30 && Shadow.sm]}
+            style={[
+              styles.tabButton,
+              rangeDays === 30 && { backgroundColor: colors.surface },
+              rangeDays === 30 && Shadow.sm,
+            ]}
             onPress={() => setRangeDays(30)}
             activeOpacity={0.7}
           >
-            <Text style={[styles.tabText, { color: colors.textSecondary }, rangeDays === 30 && { color: colors.textPrimary, fontWeight: '700' }]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: colors.textSecondary },
+                rangeDays === 30 && { color: colors.textPrimary, fontWeight: '700' },
+              ]}
+            >
               月間 (30日)
             </Text>
           </TouchableOpacity>
@@ -79,9 +93,7 @@ export default function MoodStatsCard({ entries }: MoodStatsCardProps) {
         <View style={styles.summaryBox}>
           <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>平均の気分</Text>
           <View style={styles.summaryValueContainer}>
-            <Text style={styles.summaryEmoji}>
-              {stats.representativeEmoji}
-            </Text>
+            <Text style={styles.summaryEmoji}>{stats.representativeEmoji}</Text>
             <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>
               {stats.averageMood !== null ? `${stats.averageMood}` : '-'}
             </Text>
@@ -94,7 +106,9 @@ export default function MoodStatsCard({ entries }: MoodStatsCardProps) {
         <View style={styles.summaryBox}>
           <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>期間内の記録</Text>
           <View style={styles.summaryValueContainer}>
-            <Text style={[styles.summaryCountValue, { color: colors.textPrimary }]}>{stats.totalCount}</Text>
+            <Text style={[styles.summaryCountValue, { color: colors.textPrimary }]}>
+              {stats.totalCount}
+            </Text>
             <Text style={[styles.summarySubtext, { color: colors.textLight }]}>件</Text>
           </View>
         </View>
@@ -102,7 +116,9 @@ export default function MoodStatsCard({ entries }: MoodStatsCardProps) {
 
       {/* グラフ1: 気分の波（日別トレンド） */}
       <View style={styles.graphSection}>
-        <Text style={[styles.sectionSubTitle, { color: colors.textSecondary }]}>気分の移り変わり</Text>
+        <Text style={[styles.sectionSubTitle, { color: colors.textSecondary }]}>
+          気分の移り変わり
+        </Text>
         <View style={styles.chartContainer}>
           {stats.dailyPoints.map((pt, idx) => {
             const heightPercent = getBarHeightPercent(pt.averageMood);
@@ -159,7 +175,9 @@ export default function MoodStatsCard({ entries }: MoodStatsCardProps) {
                   ]}
                 />
               </View>
-              <Text style={[styles.distPercent, { color: colors.textSecondary }]}>{item.percentage}%</Text>
+              <Text style={[styles.distPercent, { color: colors.textSecondary }]}>
+                {item.percentage}%
+              </Text>
             </View>
           );
         })}
@@ -320,4 +338,3 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 });
-

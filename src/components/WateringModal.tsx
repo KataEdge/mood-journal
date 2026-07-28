@@ -1,12 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { FontSize, Spacing, BorderRadius } from '../constants/theme';
 import { MindTreeInfo } from '../types';
@@ -92,9 +85,7 @@ export const WateringModal: React.FC<WateringModalProps> = ({
             <Text style={styles.waterEmoji}>{treeInfo?.emoji || '🌱'}</Text>
           </Animated.View>
 
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            水やり完了！
-          </Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>水やり完了！</Text>
 
           <View style={[styles.xpBadge, { backgroundColor: colors.primary }]}>
             <Text style={styles.xpBadgeText}>+{xpGained} XP 獲得！</Text>

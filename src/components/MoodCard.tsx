@@ -25,52 +25,42 @@ export default function MoodCard({ entry, onDelete, onEdit }: MoodCardProps) {
   });
 
   const confirmDelete = () => {
-    Alert.alert(
-      '記録を削除',
-      'この記録を削除しますか？',
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '削除',
-          style: 'destructive',
-          onPress: () => onDelete(entry.id),
-        },
-      ]
-    );
+    Alert.alert('記録を削除', 'この記録を削除しますか？', [
+      { text: 'キャンセル', style: 'cancel' },
+      {
+        text: '削除',
+        style: 'destructive',
+        onPress: () => onDelete(entry.id),
+      },
+    ]);
   };
 
   const handleLongPress = () => {
-    Alert.alert(
-      '記録の操作',
-      '選択した記録に対する操作を選んでください',
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '編集',
-          onPress: () => onEdit(entry),
-        },
-        {
-          text: '削除',
-          style: 'destructive',
-          onPress: confirmDelete,
-        },
-      ]
-    );
+    Alert.alert('記録の操作', '選択した記録に対する操作を選んでください', [
+      { text: 'キャンセル', style: 'cancel' },
+      {
+        text: '編集',
+        onPress: () => onEdit(entry),
+      },
+      {
+        text: '削除',
+        style: 'destructive',
+        onPress: confirmDelete,
+      },
+    ]);
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onLongPress={handleLongPress}
-      delayLongPress={500}
-    >
+    <TouchableOpacity activeOpacity={0.8} onLongPress={handleLongPress} delayLongPress={500}>
       <View style={[styles.card, { backgroundColor: colors.surface, borderLeftColor: moodColor }]}>
         <View style={styles.header}>
           <View style={[styles.emojiContainer, { backgroundColor: moodColor + '20' }]}>
             <Text style={styles.emoji}>{moodOption?.emoji || '😐'}</Text>
           </View>
           <View style={styles.headerText}>
-            <Text style={[styles.moodLabel, { color: colors.textPrimary }]}>{moodOption?.label || '記録'}</Text>
+            <Text style={[styles.moodLabel, { color: colors.textPrimary }]}>
+              {moodOption?.label || '記録'}
+            </Text>
             <Text style={[styles.time, { color: colors.textSecondary }]}>{timeString}</Text>
           </View>
           <TouchableOpacity
@@ -82,7 +72,11 @@ export default function MoodCard({ entry, onDelete, onEdit }: MoodCardProps) {
           </TouchableOpacity>
         </View>
         {entry.note ? (
-          <Text style={[styles.note, { color: colors.textSecondary, borderTopColor: colors.divider }]}>{entry.note}</Text>
+          <Text
+            style={[styles.note, { color: colors.textSecondary, borderTopColor: colors.divider }]}
+          >
+            {entry.note}
+          </Text>
         ) : null}
         {entry.tags && entry.tags.length > 0 ? (
           <View style={styles.tagsContainer}>
@@ -210,4 +204,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

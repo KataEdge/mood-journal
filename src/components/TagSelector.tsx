@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { FontSize, Spacing, BorderRadius } from '../constants/theme';
 import { getAllTags, addCustomTag, deleteCustomTag } from '../utils/storage';
 import { DEFAULT_PRESET_TAGS } from '../constants/theme';
@@ -17,10 +10,7 @@ interface TagSelectorProps {
   onToggleTag: (tagName: string) => void;
 }
 
-export const TagSelector: React.FC<TagSelectorProps> = ({
-  selectedTags,
-  onToggleTag,
-}) => {
+export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onToggleTag }) => {
   const { colors } = useTheme();
   const [allTags, setAllTags] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
@@ -57,29 +47,27 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   const handleDeleteCustomTag = (tagName: string) => {
     if (DEFAULT_PRESET_TAGS.includes(tagName)) return;
 
-    Alert.alert(
-      'タグの削除',
-      `「${tagName}」タグを削除してもよろしいですか？`,
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '削除',
-          style: 'destructive',
-          onPress: async () => {
-            const updated = await deleteCustomTag(tagName);
-            setAllTags(updated);
-            if (selectedTags.includes(tagName)) {
-              onToggleTag(tagName);
-            }
-          },
+    Alert.alert('タグの削除', `「${tagName}」タグを削除してもよろしいですか？`, [
+      { text: 'キャンセル', style: 'cancel' },
+      {
+        text: '削除',
+        style: 'destructive',
+        onPress: async () => {
+          const updated = await deleteCustomTag(tagName);
+          setAllTags(updated);
+          if (selectedTags.includes(tagName)) {
+            onToggleTag(tagName);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: colors.textSecondary }]}>要因・関連タグ (複数選択可)</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>
+        要因・関連タグ (複数選択可)
+      </Text>
 
       <View style={styles.tagWrap}>
         {allTags.map((tag) => {
@@ -114,7 +102,10 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
         {!isAdding ? (
           <TouchableOpacity
-            style={[styles.addChip, { borderColor: colors.primaryDark, backgroundColor: colors.surface }]}
+            style={[
+              styles.addChip,
+              { borderColor: colors.primaryDark, backgroundColor: colors.surface },
+            ]}
             onPress={() => setIsAdding(true)}
           >
             <Text style={[styles.addChipText, { color: colors.primaryDark }]}>+ 新しいタグ</Text>
@@ -122,7 +113,14 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
         ) : (
           <View style={styles.inputWrap}>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                },
+              ]}
               placeholder="タグ名を入力..."
               placeholderTextColor={colors.textLight}
               value={newTagText}
@@ -131,7 +129,10 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
               maxLength={15}
               onSubmitEditing={handleAddTag}
             />
-            <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primary }]} onPress={handleAddTag}>
+            <TouchableOpacity
+              style={[styles.addBtn, { backgroundColor: colors.primary }]}
+              onPress={handleAddTag}
+            >
               <Text style={[styles.addBtnText, { color: colors.textOnPrimary }]}>追加</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -217,4 +218,3 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
   },
 });
-

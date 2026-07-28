@@ -48,9 +48,7 @@ export const MindTreeCard: React.FC<MindTreeCardProps> = ({ treeInfo }) => {
 
       <View style={styles.progressSection}>
         <View style={styles.progressHeader}>
-          <Text style={[styles.progressLabel, { color: colors.textSecondary }]}>
-            次の成長まで
-          </Text>
+          <Text style={[styles.progressLabel, { color: colors.textSecondary }]}>次の成長まで</Text>
           <Text style={[styles.progressValue, { color: colors.primaryDark }]}>
             {treeInfo.currentLevelXp} / {treeInfo.nextLevelXp} XP ({progressPercent}%)
           </Text>

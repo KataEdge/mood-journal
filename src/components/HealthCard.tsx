@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Switch,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ActivityIndicator } from 'react-native';
 import { HealthData } from '../types';
 import { ThemeColors, Spacing, BorderRadius, FontSize, Shadow } from '../constants/theme';
 
@@ -42,9 +35,7 @@ export const HealthCard: React.FC<HealthCardProps> = ({
         <View style={styles.headerLeft}>
           <Text style={styles.headerIcon}>❤️</Text>
           <View>
-            <Text style={[styles.title, { color: colors.textPrimary }]}>
-              ヘルスケア連携
-            </Text>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>ヘルスケア連携</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               {enabled ? '本日の睡眠・運動データを自動取得中' : 'ヘルスケア自動連携はOFFです'}
             </Text>
@@ -74,9 +65,7 @@ export const HealthCard: React.FC<HealthCardProps> = ({
               <View style={[styles.dataItem, { backgroundColor: colors.background }]}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemIcon}>🌙</Text>
-                  <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>
-                    睡眠時間
-                  </Text>
+                  <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>睡眠時間</Text>
                 </View>
                 <Text style={[styles.itemValue, { color: colors.textPrimary }]}>
                   {healthData.sleepHours}
@@ -108,14 +97,8 @@ export const HealthCard: React.FC<HealthCardProps> = ({
           )}
 
           {enabled && !loading && (
-            <TouchableOpacity
-              style={styles.refreshButton}
-              onPress={onRefresh}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.refreshText, { color: colors.primaryDark }]}>
-                🔄 再読み込み
-              </Text>
+            <TouchableOpacity style={styles.refreshButton} onPress={onRefresh} activeOpacity={0.7}>
+              <Text style={[styles.refreshText, { color: colors.primaryDark }]}>🔄 再読み込み</Text>
             </TouchableOpacity>
           )}
         </View>

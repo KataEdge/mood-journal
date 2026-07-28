@@ -34,7 +34,8 @@ export const MoodChart: React.FC<MoodChartProps> = ({ points }) => {
     return paddingLeft + (index / (points.length - 1)) * chartWidth;
   };
 
-  const validCoordinates: { x: number; y: number; mood: number; label: string; dateKey: string }[] = [];
+  const validCoordinates: { x: number; y: number; mood: number; label: string; dateKey: string }[] =
+    [];
   points.forEach((pt, idx) => {
     if (pt.mood !== null) {
       validCoordinates.push({
@@ -73,12 +74,7 @@ export const MoodChart: React.FC<MoodChartProps> = ({ points }) => {
                   strokeWidth="1"
                   strokeDasharray="4 4"
                 />
-                <SvgText
-                  x={paddingLeft - 12}
-                  y={y + 4}
-                  fontSize="12"
-                  textAnchor="end"
-                >
+                <SvgText x={paddingLeft - 12} y={y + 4} fontSize="12" textAnchor="end">
                   {option.emoji}
                 </SvgText>
               </G>
@@ -134,7 +130,9 @@ export const MoodChart: React.FC<MoodChartProps> = ({ points }) => {
 
       {validCoordinates.length === 0 && (
         <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyText, { color: colors.textLight }]}>この期間の記録データがありません</Text>
+          <Text style={[styles.emptyText, { color: colors.textLight }]}>
+            この期間の記録データがありません
+          </Text>
         </View>
       )}
     </View>
@@ -167,4 +165,3 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
   },
 });
-

@@ -45,7 +45,9 @@ export const MoodDistribution: React.FC<MoodDistributionProps> = ({ distribution
       })}
 
       {totalCount === 0 && (
-        <Text style={[styles.emptyText, { color: colors.textLight }]}>データが登録されると分布が表示されます</Text>
+        <Text style={[styles.emptyText, { color: colors.textLight }]}>
+          データが登録されると分布が表示されます
+        </Text>
       )}
     </View>
   );
@@ -99,4 +101,3 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
 });
-

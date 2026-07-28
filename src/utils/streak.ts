@@ -205,18 +205,12 @@ export const calculateStreak = (entries: MoodEntry[]): StreakInfo => {
     };
   }
 
-  // 直近基準日（今日記録済みなら今日、未記録なら昨日）
-  let checkDate = new Date(hasRecordedToday ? todayStr : yesterdayStr);
+  const checkDate = new Date(hasRecordedToday ? todayStr : yesterdayStr);
   let streakCount = 0;
 
-  while (true) {
-    const dateStr = getLocalDateString(checkDate);
-    if (uniqueDatesSet.has(dateStr)) {
-      streakCount++;
-      checkDate.setDate(checkDate.getDate() - 1);
-    } else {
-      break;
-    }
+  while (uniqueDatesSet.has(getLocalDateString(checkDate))) {
+    streakCount++;
+    checkDate.setDate(checkDate.getDate() - 1);
   }
 
   const longestStreak = Math.max(streakCount, calculateLongestStreak(sortedDates));
@@ -241,7 +235,7 @@ const calculateLongestStreak = (sortedDatesDescending: string[]): number => {
   for (let i = 1; i < dates.length; i++) {
     const prevDate = new Date(dates[i - 1]);
     const currDate = new Date(dates[i]);
-    
+
     // 日付差（日単位）
     const diffTime = Math.abs(currDate.getTime() - prevDate.getTime());
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
@@ -443,7 +437,7 @@ export const checkAndEvaluateBadges = async (
     return {
       ...base,
       currentCount,
-      unlockedAt: isUnlocked ? (unlockedAt || nowISO) : null,
+      unlockedAt: isUnlocked ? unlockedAt || nowISO : null,
     };
   });
 
@@ -592,7 +586,7 @@ export const calculateStreakWithFreeze = async (entries: MoodEntry[]): Promise<S
   if (baseStreak.currentStreak === 0 && entries.length > 0 && freezeData.freezeAvailable) {
     const uniqueDatesSet = new Set(entries.map((e) => getLocalDateString(e.timestamp)));
     const todayStr = getLocalDateString(new Date());
-    
+
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
     const yesterdayStr = getLocalDateString(yesterdayDate);
@@ -602,7 +596,11 @@ export const calculateStreakWithFreeze = async (entries: MoodEntry[]): Promise<S
     const twoDaysAgoStr = getLocalDateString(twoDaysAgoDate);
 
     // 今日・昨日に記録がないが、2日前に記録があり、昨日をフリーズ消費して救済できる場合
-    if (!uniqueDatesSet.has(todayStr) && !uniqueDatesSet.has(yesterdayStr) && uniqueDatesSet.has(twoDaysAgoStr)) {
+    if (
+      !uniqueDatesSet.has(todayStr) &&
+      !uniqueDatesSet.has(yesterdayStr) &&
+      uniqueDatesSet.has(twoDaysAgoStr)
+    ) {
       // フリーズを自動消費して昨日に架空適用
       const updatedFreeze: StoredFreezeData = {
         ...freezeData,
@@ -611,17 +609,11 @@ export const calculateStreakWithFreeze = async (entries: MoodEntry[]): Promise<S
       };
       await AsyncStorage.setItem(STREAK_FREEZE_KEY, JSON.stringify(updatedFreeze));
 
-      // 2日前からのストリークを計算
-      let checkDate = new Date(twoDaysAgoStr);
+      const checkDate = new Date(twoDaysAgoStr);
       let streakCount = 1; // 昨日はフリーズで補填
-      while (true) {
-        const dateStr = getLocalDateString(checkDate);
-        if (uniqueDatesSet.has(dateStr)) {
-          streakCount++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
+      while (uniqueDatesSet.has(getLocalDateString(checkDate))) {
+        streakCount++;
+        checkDate.setDate(checkDate.getDate() - 1);
       }
 
       return {
@@ -645,7 +637,10 @@ export const calculateStreakWithFreeze = async (entries: MoodEntry[]): Promise<S
 // 📊 週次感情レポート（Weekly Insight Report）
 // ==========================================
 
-export const getWeeklyReportData = (entries: MoodEntry[], weeklyXp: number = 0): WeeklyReportData => {
+export const getWeeklyReportData = (
+  entries: MoodEntry[],
+  weeklyXp: number = 0
+): WeeklyReportData => {
   const now = new Date();
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(now.getDate() - 6);
@@ -711,4 +706,3 @@ export const getWeeklyReportData = (entries: MoodEntry[], weeklyXp: number = 0):
     message,
   };
 };
-

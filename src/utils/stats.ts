@@ -141,8 +141,14 @@ export function calculateHealthStats(entries: MoodEntry[]): HealthStats {
   }
 
   const totalSleep = entriesWithHealth.reduce((sum, e) => sum + (e.healthData?.sleepHours || 0), 0);
-  const totalWorkout = entriesWithHealth.reduce((sum, e) => sum + (e.healthData?.workoutMinutes || 0), 0);
-  const totalCalories = entriesWithHealth.reduce((sum, e) => sum + (e.healthData?.activeCalories || 0), 0);
+  const totalWorkout = entriesWithHealth.reduce(
+    (sum, e) => sum + (e.healthData?.workoutMinutes || 0),
+    0
+  );
+  const totalCalories = entriesWithHealth.reduce(
+    (sum, e) => sum + (e.healthData?.activeCalories || 0),
+    0
+  );
 
   const averageSleepHours = Math.round((totalSleep / hasDataCount) * 10) / 10;
   const averageWorkoutMinutes = Math.round(totalWorkout / hasDataCount);
@@ -151,7 +157,10 @@ export function calculateHealthStats(entries: MoodEntry[]): HealthStats {
   const goodMoodEntries = entriesWithHealth.filter((e) => e.mood === 5 || e.mood === 4);
   let goodMoodSleepHours: number | null = null;
   if (goodMoodEntries.length > 0) {
-    const goodMoodSleepSum = goodMoodEntries.reduce((sum, e) => sum + (e.healthData?.sleepHours || 0), 0);
+    const goodMoodSleepSum = goodMoodEntries.reduce(
+      (sum, e) => sum + (e.healthData?.sleepHours || 0),
+      0
+    );
     goodMoodSleepHours = Math.round((goodMoodSleepSum / goodMoodEntries.length) * 10) / 10;
   }
 

@@ -28,8 +28,27 @@ import { BadgeUnlockedModal } from '../components/BadgeUnlockedModal';
 import { MindTreeCard } from '../components/MindTreeCard';
 import { WateringModal } from '../components/WateringModal';
 import { WeeklyReportModal } from '../components/WeeklyReportModal';
-import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry, StreakInfo, AchievementBadge, MindTreeInfo, WeeklyReportData, UserProfile } from '../types';
-import { saveMoodEntry, getMoodEntries, isFirstLaunch, setFirstLaunchDone, getUserProfile, saveUserProfile } from '../utils/storage';
+import {
+  MoodOption,
+  MoodLevel,
+  Quote,
+  HealthData,
+  BreathingSession,
+  MoodEntry,
+  StreakInfo,
+  AchievementBadge,
+  MindTreeInfo,
+  WeeklyReportData,
+  UserProfile,
+} from '../types';
+import {
+  saveMoodEntry,
+  getMoodEntries,
+  isFirstLaunch,
+  setFirstLaunchDone,
+  getUserProfile,
+  saveUserProfile,
+} from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
 
 import {
@@ -46,12 +65,7 @@ import {
   getHealthSyncPreference,
   setHealthSyncPreference,
 } from '../utils/health';
-import {
-  FontSize,
-  Spacing,
-  BorderRadius,
-  Shadow,
-} from '../constants/theme';
+import { FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
 export default function HomeScreen() {
@@ -70,7 +84,11 @@ export default function HomeScreen() {
   const [saved, setSaved] = useState(false);
 
   // ストリーク & アチーブメント ステート
-  const [streakInfo, setStreakInfo] = useState<StreakInfo>({ currentStreak: 0, longestStreak: 0, lastRecordedDate: '' });
+  const [streakInfo, setStreakInfo] = useState<StreakInfo>({
+    currentStreak: 0,
+    longestStreak: 0,
+    lastRecordedDate: '',
+  });
   const [badges, setBadges] = useState<AchievementBadge[]>([]);
   const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<AchievementBadge | null>(null);
@@ -81,7 +99,6 @@ export default function HomeScreen() {
   const [lastXpGained, setLastXpGained] = useState(0);
   const [weeklyReport, setWeeklyReport] = useState<WeeklyReportData | null>(null);
   const [showWeeklyReportModal, setShowWeeklyReportModal] = useState(false);
-
 
   // ヘルスケア連携ステート
   const [healthEnabled, setHealthEnabled] = useState(true);
@@ -195,7 +212,6 @@ export default function HomeScreen() {
     }
   };
 
-
   const refreshQuote = () => {
     Animated.timing(messageOpacity, {
       toValue: 0,
@@ -228,9 +244,7 @@ export default function HomeScreen() {
 
   const handleToggleTag = (tagName: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tagName)
-        ? prev.filter((t) => t !== tagName)
-        : [...prev, tagName]
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]
     );
   };
 
@@ -268,7 +282,10 @@ export default function HomeScreen() {
     setShowWateringModal(true);
 
     const breathingCount = updatedEntries.filter((e) => e.breathingSession).length;
-    const { badges: newBadges, newlyUnlocked } = await checkAndEvaluateBadges(updatedEntries, breathingCount);
+    const { badges: newBadges, newlyUnlocked } = await checkAndEvaluateBadges(
+      updatedEntries,
+      breathingCount
+    );
     setBadges(newBadges);
 
     if (newlyUnlocked.length > 0) {
@@ -354,7 +371,6 @@ export default function HomeScreen() {
               }}
             />
 
-
             {/* 連続記録ストリーク＆アチーブメントカード */}
             <StreakCard
               streakInfo={streakInfo}
@@ -384,23 +400,42 @@ export default function HomeScreen() {
             )}
 
             {/* 有名人・偉人の名言 */}
-            <Animated.View style={[styles.messageCard, { backgroundColor: colors.surface, borderLeftColor: colors.primary, opacity: messageOpacity }]}>
-              <Text style={[styles.quoteText, { color: colors.textPrimary }]}>「{quote.text}」</Text>
+            <Animated.View
+              style={[
+                styles.messageCard,
+                {
+                  backgroundColor: colors.surface,
+                  borderLeftColor: colors.primary,
+                  opacity: messageOpacity,
+                },
+              ]}
+            >
+              <Text style={[styles.quoteText, { color: colors.textPrimary }]}>
+                「{quote.text}」
+              </Text>
               <Text style={[styles.quoteAuthor, { color: colors.textSecondary }]}>
-                — {quote.author}{quote.authorTitle ? `（${quote.authorTitle}）` : ''}
+                — {quote.author}
+                {quote.authorTitle ? `（${quote.authorTitle}）` : ''}
               </Text>
               <TouchableOpacity
                 onPress={refreshQuote}
                 style={styles.refreshButton}
                 activeOpacity={0.6}
               >
-                <Text style={[styles.refreshText, { color: colors.primaryDark }]}>🔄 別の名言を見る</Text>
+                <Text style={[styles.refreshText, { color: colors.primaryDark }]}>
+                  🔄 別の名言を見る
+                </Text>
               </TouchableOpacity>
             </Animated.View>
 
             {/* 呼吸法実践ステータス表示 */}
             {breathingSession && (
-              <View style={[styles.breathingCard, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+              <View
+                style={[
+                  styles.breathingCard,
+                  { backgroundColor: colors.surface, borderColor: colors.primary },
+                ]}
+              >
                 <View style={styles.breathingCardLeft}>
                   <Ionicons name="leaf-outline" size={24} color={colors.primaryDark} />
                   <View style={styles.breathingCardTextGroup}>
@@ -408,27 +443,29 @@ export default function HomeScreen() {
                       4-7-8 呼吸法を実践済み 🍃
                     </Text>
                     <Text style={[styles.breathingCardSub, { color: colors.textSecondary }]}>
-                      {breathingSession.completedCycles}セット完了 ({new Date(breathingSession.completedAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })})
+                      {breathingSession.completedCycles}セット完了 (
+                      {new Date(breathingSession.completedAt).toLocaleTimeString('ja-JP', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                      )
                     </Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={handleClearBreathingSession} style={styles.breathingCardClose}>
+                <TouchableOpacity
+                  onPress={handleClearBreathingSession}
+                  style={styles.breathingCardClose}
+                >
                   <Ionicons name="close-circle-outline" size={22} color={colors.textLight} />
                 </TouchableOpacity>
               </View>
             )}
 
             {/* 気分セレクター */}
-            <MoodSelector
-              selectedMood={selectedMood}
-              onSelect={handleMoodSelect}
-            />
+            <MoodSelector selectedMood={selectedMood} onSelect={handleMoodSelect} />
 
             {/* 感情要因タグセレクター */}
-            <TagSelector
-              selectedTags={selectedTags}
-              onToggleTag={handleToggleTag}
-            />
+            <TagSelector selectedTags={selectedTags} onToggleTag={handleToggleTag} />
 
             {/* ヘルスケア連携カード */}
             <HealthCard
@@ -442,9 +479,14 @@ export default function HomeScreen() {
 
             {/* メモ入力 */}
             <View style={[styles.noteCard, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.noteLabel, { color: colors.textPrimary }]}>💭 一言メモ（任意）</Text>
+              <Text style={[styles.noteLabel, { color: colors.textPrimary }]}>
+                💭 一言メモ（任意）
+              </Text>
               <TextInput
-                style={[styles.noteInput, { backgroundColor: colors.background, color: colors.textPrimary }]}
+                style={[
+                  styles.noteInput,
+                  { backgroundColor: colors.background, color: colors.textPrimary },
+                ]}
                 placeholder="今の気持ちを一言..."
                 placeholderTextColor={colors.textLight}
                 value={note}
@@ -453,7 +495,9 @@ export default function HomeScreen() {
                 maxLength={200}
                 textAlignVertical="top"
               />
-              <Text style={[styles.charCount, { color: colors.textLight }]}>{note.length} / 200</Text>
+              <Text style={[styles.charCount, { color: colors.textLight }]}>
+                {note.length} / 200
+              </Text>
             </View>
 
             {/* 保存ボタン */}
@@ -467,7 +511,12 @@ export default function HomeScreen() {
               onPress={handleSave}
               disabled={!selectedMood || saved}
             >
-              <Text style={[styles.saveButtonText, { color: selectedMood ? colors.textOnPrimary : colors.textLight }]}>
+              <Text
+                style={[
+                  styles.saveButtonText,
+                  { color: selectedMood ? colors.textOnPrimary : colors.textLight },
+                ]}
+              >
                 {saved ? '✓ 保存しました！' : '記録する'}
               </Text>
             </TouchableOpacity>
@@ -508,7 +557,6 @@ export default function HomeScreen() {
         onSave={handleSaveProfile}
         onClose={() => setShowProfileModal(false)}
       />
-
 
       {/* 呼吸法ガイドモーダル */}
       <BreathingGuideModal
@@ -683,4 +731,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

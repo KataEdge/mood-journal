@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
@@ -19,12 +12,7 @@ export default function SafetyModal({ visible, onClose }: SafetyModalProps) {
   const { colors } = useTheme();
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-    >
+    <Modal visible={visible} transparent animationType="fade" statusBarTranslucent>
       <View style={styles.overlay}>
         <View style={[styles.modal, { backgroundColor: colors.surface }]}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -35,8 +23,15 @@ export default function SafetyModal({ visible, onClose }: SafetyModalProps) {
               このアプリは日々の感情を記録し、セルフケアを支援するためのツールです。
             </Text>
 
-            <View style={[styles.notice, { backgroundColor: colors.tagBg, borderLeftColor: colors.warning }]}>
-              <Text style={[styles.noticeTitle, { color: colors.textPrimary }]}>⚠️ ご注意ください</Text>
+            <View
+              style={[
+                styles.notice,
+                { backgroundColor: colors.tagBg, borderLeftColor: colors.warning },
+              ]}
+            >
+              <Text style={[styles.noticeTitle, { color: colors.textPrimary }]}>
+                ⚠️ ご注意ください
+              </Text>
               <Text style={[styles.noticeBody, { color: colors.textSecondary }]}>
                 本アプリは医療機関の診断・治療に代わるものではありません。{'\n\n'}
                 心身の不調が強い場合は、専門医や相談機関をご利用ください。
@@ -61,7 +56,9 @@ export default function SafetyModal({ visible, onClose }: SafetyModalProps) {
               activeOpacity={0.8}
               onPress={onClose}
             >
-              <Text style={[styles.buttonText, { color: colors.textOnPrimary }]}>同意して始める</Text>
+              <Text style={[styles.buttonText, { color: colors.textOnPrimary }]}>
+                同意して始める
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -142,4 +139,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-

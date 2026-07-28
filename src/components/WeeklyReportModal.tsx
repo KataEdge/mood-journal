@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { FontSize, Spacing, BorderRadius } from '../constants/theme';
@@ -42,11 +35,12 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
           <View style={styles.header}>
             <View style={styles.headerTitleRow}>
               <Ionicons name="sparkles" size={20} color={colors.primary} />
-              <Text style={[styles.title, { color: colors.textPrimary }]}>
-                今週の感情レポート
-              </Text>
+              <Text style={[styles.title, { color: colors.textPrimary }]}>今週の感情レポート</Text>
             </View>
-            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              onPress={onClose}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
               <Ionicons name="close-circle" size={24} color={colors.textLight} />
             </TouchableOpacity>
           </View>
@@ -62,7 +56,9 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                 <Text style={styles.statIconEmoji}>📅</Text>
               </View>
               <View style={styles.statTextGroup}>
-                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>今週の記録日数</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                  今週の記録日数
+                </Text>
                 <Text style={[styles.statValue, { color: colors.primaryDark }]}>
                   {reportData.recordedDaysCount} / 7 日間記録
                 </Text>
@@ -75,9 +71,13 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                 <Text style={styles.statIconEmoji}>{reportData.averageEmoji}</Text>
               </View>
               <View style={styles.statTextGroup}>
-                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>平均感情レベル</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                  平均感情レベル
+                </Text>
                 <Text style={[styles.statValue, { color: colors.textPrimary }]}>
-                  {reportData.averageLevel !== null ? `${reportData.averageLevel} / 5.0` : 'データなし'}
+                  {reportData.averageLevel !== null
+                    ? `${reportData.averageLevel} / 5.0`
+                    : 'データなし'}
                 </Text>
               </View>
             </View>
@@ -94,9 +94,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                       key={tag}
                       style={[styles.tagPill, { backgroundColor: `${colors.primary}20` }]}
                     >
-                      <Text style={[styles.tagText, { color: colors.primaryDark }]}>
-                        #{tag}
-                      </Text>
+                      <Text style={[styles.tagText, { color: colors.primaryDark }]}>#{tag}</Text>
                     </View>
                   ))}
                 </View>
@@ -104,7 +102,12 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
             )}
 
             {/* 今週のメッセージ */}
-            <View style={[styles.messageBox, { backgroundColor: `${colors.accent || colors.primary}15` }]}>
+            <View
+              style={[
+                styles.messageBox,
+                { backgroundColor: `${colors.accent || colors.primary}15` },
+              ]}
+            >
               <Text style={styles.messageEmoji}>💌</Text>
               <Text style={[styles.messageText, { color: colors.textPrimary }]}>
                 {reportData.message}

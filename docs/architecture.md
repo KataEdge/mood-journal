@@ -86,3 +86,23 @@ export interface MoodEntry {
 3. **📊 週末感情レポート（Weekly Insight Report）**
    - 週末（土・日）になるとホーム画面上にバナーが出現し、今週の記録日数・平均レベル・要因タグ・温かい応援メッセージを表示。
 
+---
+
+## 6. CI/CD パイプライン & Vercel デプロイ戦略
+
+### ① 全体構成
+- **GitHub Integration (Vercel)**:
+  - PR作成・更新時: Vercelが自動で **Preview Deployment** を生成・リンクコメント。
+  - `main` マージ時: Vercelが自動で **Production Deployment** を更新。
+- **GitHub Actions (`.github/workflows/ci.yml`)**:
+  - 静的解析 (ESLint), コード整形確認 (Prettier), TypeScript型チェック (`tsc --noEmit`), セキュリティ診断 (`npm audit`), Webビルド検証 (`expo export -p web`) を自動実行。
+- **Dependabot (`.github/dependabot.yml`)**:
+  - npmパッケージおよび GitHub Actions ワークフローの依存関係を週次で自動更新チェック。
+
+### ② ブランチ保護ルール (Branch Protection Rules)
+- 対象: `main` ブランチ
+- 設定:
+  - 直接Pushの禁止 (PR必須)
+  - 必須ステータスチェック: `CI Quality Check` (GitHub Actions) & `Vercel` (Preview Deployment)
+
+

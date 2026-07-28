@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { MoodOption } from '../types';
 import { MOOD_OPTIONS, FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
@@ -26,9 +20,7 @@ export default function MoodSelector({ selectedMood, onSelect }: MoodSelectorPro
     };
   });
 
-  const scaleValues = React.useRef(
-    dynamicMoodOptions.map(() => new Animated.Value(1))
-  ).current;
+  const scaleValues = React.useRef(dynamicMoodOptions.map(() => new Animated.Value(1))).current;
 
   const handlePress = (option: MoodOption, index: number) => {
     Animated.sequence([
@@ -141,4 +133,3 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 });
-

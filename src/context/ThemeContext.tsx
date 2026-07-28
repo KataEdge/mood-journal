@@ -28,8 +28,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const cycleTheme = () => {
-    const nextTheme: ThemeType =
-      theme === 'light' ? 'dark' : theme === 'dark' ? 'warm' : 'light';
+    const nextTheme: ThemeType = theme === 'light' ? 'dark' : theme === 'dark' ? 'warm' : 'light';
     setTheme(nextTheme);
   };
 

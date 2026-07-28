@@ -40,9 +40,7 @@ export const getReminderSettings = async (): Promise<ReminderSettings> => {
 /**
  * リマインダー設定を保存および通知スケジュール更新
  */
-export const saveReminderSettings = async (
-  settings: ReminderSettings
-): Promise<boolean> => {
+export const saveReminderSettings = async (settings: ReminderSettings): Promise<boolean> => {
   try {
     await AsyncStorage.setItem(REMINDER_KEY, JSON.stringify(settings));
 
@@ -80,10 +78,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
 /**
  * 毎日のリマインダー通知を登録
  */
-export const scheduleDailyReminder = async (
-  hour: number,
-  minute: number
-): Promise<boolean> => {
+export const scheduleDailyReminder = async (hour: number, minute: number): Promise<boolean> => {
   if (Platform.OS === 'web') return false;
 
   const hasPermission = await requestNotificationPermission();
