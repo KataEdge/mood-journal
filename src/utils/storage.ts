@@ -35,12 +35,19 @@ export async function saveStoredTheme(theme: ThemeType): Promise<void> {
 
 
 /**
- * 気分エントリを保存する
+ * 気分エントリを保存（新規追加または更新）する
  */
 export async function saveMoodEntry(entry: MoodEntry): Promise<void> {
   try {
     const existing = await getMoodEntries();
-    const updated = [entry, ...existing];
+    const index = existing.findIndex((e) => e.id === entry.id);
+    let updated: MoodEntry[];
+    if (index >= 0) {
+      updated = [...existing];
+      updated[index] = entry;
+    } else {
+      updated = [entry, ...existing];
+    }
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (error) {
     console.error('Failed to save mood entry:', error);

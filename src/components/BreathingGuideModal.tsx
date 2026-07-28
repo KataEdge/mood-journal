@@ -10,14 +10,16 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
+import { Colors, FontSize, Spacing, BorderRadius, Shadow, MOOD_OPTIONS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
-import { BreathingSession } from '../types';
+import { BreathingSession, MoodLevel, MoodEntry } from '../types';
+import { saveMoodEntry } from '../utils/storage';
 
 interface BreathingGuideModalProps {
   visible: boolean;
   onClose: () => void;
   onCompleteWithBreathing?: (session: BreathingSession) => void;
+  targetEntry?: MoodEntry | null;
 }
 
 type Phase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'completed';
@@ -26,11 +28,14 @@ export default function BreathingGuideModal({
   visible,
   onClose,
   onCompleteWithBreathing,
+  targetEntry,
 }: BreathingGuideModalProps) {
   const { colors } = useTheme();
   const [phase, setPhase] = useState<Phase>('idle');
   const [cycleCount, setCycleCount] = useState(0); // 1 ~ 3
   const [countdown, setCountdown] = useState(0);
+  const [selectedMood, setSelectedMood] = useState<MoodLevel>(targetEntry?.mood || 3);
+  const [savedEntryId, setSavedEntryId] = useState<string | null>(targetEntry?.id || null);
 
   const circleScale = useRef(new Animated.Value(1)).current;
   const isRunning = useRef(false);
@@ -39,8 +44,11 @@ export default function BreathingGuideModal({
   useEffect(() => {
     if (!visible) {
       resetBreathing();
+    } else if (targetEntry) {
+      setSelectedMood(targetEntry.mood);
+      setSavedEntryId(targetEntry.id);
     }
-  }, [visible]);
+  }, [visible, targetEntry]);
 
   const resetBreathing = () => {
     isRunning.current = false;
@@ -48,6 +56,8 @@ export default function BreathingGuideModal({
     setPhase('idle');
     setCycleCount(0);
     setCountdown(0);
+    setSavedEntryId(targetEntry?.id || null);
+    setSelectedMood(targetEntry?.mood || 3);
     circleScale.setValue(1);
   };
 
@@ -99,6 +109,7 @@ export default function BreathingGuideModal({
             // 3セット完了
             setPhase('completed');
             isRunning.current = false;
+            autoSaveBreathingEntry(3, 3);
           } else {
             // 次のセットへ
             runCycle(currentCycle + 1);
@@ -106,6 +117,40 @@ export default function BreathingGuideModal({
         });
       }, 7000);
     });
+  };
+
+  const autoSaveBreathingEntry = async (cycles: number, mood: MoodLevel, existingId?: string | null) => {
+    const entryId = existingId || targetEntry?.id || savedEntryId || Date.now().toString() + Math.random().toString(36).slice(2, 9);
+    setSavedEntryId(entryId);
+
+    const session: BreathingSession = {
+      completedCycles: cycles,
+      completedAt: new Date().toISOString(),
+    };
+
+    const existingTags = targetEntry?.tags || [];
+    const updatedTags = existingTags.includes('呼吸法') ? existingTags : [...existingTags, '呼吸法'];
+
+    const entry: MoodEntry = {
+      id: entryId,
+      mood: mood,
+      note: targetEntry ? targetEntry.note : '4-7-8呼吸法を実践 🍃',
+      timestamp: targetEntry ? targetEntry.timestamp : new Date().toISOString(),
+      tags: targetEntry ? updatedTags : ['呼吸法'],
+      healthData: targetEntry?.healthData,
+      breathingSession: session,
+    };
+
+    await saveMoodEntry(entry);
+
+    if (onCompleteWithBreathing) {
+      onCompleteWithBreathing(session);
+    }
+  };
+
+  const handleMoodSelectInModal = (level: MoodLevel) => {
+    setSelectedMood(level);
+    autoSaveBreathingEntry(cycleCount > 0 ? cycleCount : 3, level, savedEntryId);
   };
 
   const startCountdown = (seconds: number) => {
@@ -130,7 +175,7 @@ export default function BreathingGuideModal({
       case 'exhale':
         return '口からゆっくり吐いて…';
       case 'completed':
-        return 'お疲れ様でした！心が少し落ち着きましたか？ ✨';
+        return '✅ 4-7-8呼吸法の実践を自動記録しました！\nいまの気持ちを選んで更新できます 🍃';
       default:
         return 'リラックスして準備ができたらスタートを押してください';
     }
@@ -232,14 +277,36 @@ export default function BreathingGuideModal({
               <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>セッションを開始 (3セット)</Text>
             </TouchableOpacity>
           ) : phase === 'completed' ? (
-            <View style={{ gap: Spacing.sm }}>
+            <View style={{ gap: Spacing.md }}>
+              <View style={styles.moodSelectorRow}>
+                {MOOD_OPTIONS.map((item) => {
+                  const isSelected = selectedMood === item.level;
+                  return (
+                    <TouchableOpacity
+                      key={item.level}
+                      style={[
+                        styles.moodMiniItem,
+                        { backgroundColor: colors.surface, borderColor: colors.border },
+                        isSelected && { borderColor: colors.primary, backgroundColor: colors.primary + '15' },
+                      ]}
+                      onPress={() => handleMoodSelectInModal(item.level)}
+                    >
+                      <Text style={styles.moodMiniEmoji}>{item.emoji}</Text>
+                      <Text style={[styles.moodMiniLabel, { color: isSelected ? colors.primaryDark : colors.textSecondary }]}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
               <TouchableOpacity
                 style={[styles.startButton, { backgroundColor: colors.primary }]}
-                onPress={handleCompleteAndRecord}
+                onPress={onClose}
                 activeOpacity={0.8}
               >
-                <Ionicons name="create-outline" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
-                <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>呼吸法を記録して気分を入力 🍃</Text>
+                <Ionicons name="checkmark" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
+                <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>完了する</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -249,14 +316,6 @@ export default function BreathingGuideModal({
               >
                 <Ionicons name="refresh" size={20} color={colors.textPrimary} style={styles.btnIcon} />
                 <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>もう一度行う</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.stopButton, { backgroundColor: colors.border }]}
-                onPress={onClose}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>記録せずに閉じる</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -384,5 +443,26 @@ const styles = StyleSheet.create({
   },
   btnIcon: {
     marginRight: Spacing.xs,
+  },
+  moodSelectorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.xs,
+  },
+  moodMiniItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.xs,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+    minWidth: 56,
+  },
+  moodMiniEmoji: {
+    fontSize: 24,
+  },
+  moodMiniLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    marginTop: 2,
   },
 });

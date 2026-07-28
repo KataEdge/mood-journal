@@ -21,7 +21,7 @@ import BreathingGuideModal from '../components/BreathingGuideModal';
 import { TagSelector } from '../components/TagSelector';
 import { ThemeHeader } from '../components/ThemeHeader';
 import { HealthCard } from '../components/HealthCard';
-import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession } from '../types';
+import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry } from '../types';
 import { saveMoodEntry, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
 import {
@@ -46,6 +46,7 @@ export default function HomeScreen() {
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [showBreathingModal, setShowBreathingModal] = useState(false);
   const [breathingSession, setBreathingSession] = useState<BreathingSession | null>(null);
+  const [lastSavedLowEntry, setLastSavedLowEntry] = useState<MoodEntry | null>(null);
   const [saved, setSaved] = useState(false);
 
   // ヘルスケア連携ステート
@@ -203,6 +204,7 @@ export default function HomeScreen() {
       refreshQuote();
 
       if (isLowMood) {
+        setLastSavedLowEntry(entry);
         Alert.alert(
           '記録を保存しました 🌿',
           '気持ちを記録してくれてありがとうございます。\n4-7-8深呼吸で少し心を落ち着かせませんか？',
@@ -370,7 +372,11 @@ export default function HomeScreen() {
       {/* 呼吸法ガイドモーダル */}
       <BreathingGuideModal
         visible={showBreathingModal}
-        onClose={() => setShowBreathingModal(false)}
+        targetEntry={lastSavedLowEntry}
+        onClose={() => {
+          setShowBreathingModal(false);
+          setLastSavedLowEntry(null);
+        }}
         onCompleteWithBreathing={handleBreathingComplete}
       />
     </SafeAreaView>
