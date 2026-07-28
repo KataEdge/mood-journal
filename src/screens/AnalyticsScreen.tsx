@@ -105,7 +105,6 @@ export default function AnalyticsScreen() {
                     <Text style={styles.summaryLabel}>平均気分</Text>
                     <Text style={styles.summaryValue}>
                       {summary.averageLabel}
-                      {summary.averageLevel !== null && ` (${summary.averageLevel})`}
                     </Text>
                   </View>
                 </View>
@@ -135,7 +134,7 @@ export default function AnalyticsScreen() {
               <View style={[styles.sectionCard, Shadow.sm]}>
                 <Text style={styles.sectionTitle}>🏷️ 要因（タグ）別の感情傾向</Text>
                 <Text style={styles.sectionSubtitle}>
-                  タグごとの記録回数と平均気分スコア
+                  タグごとの記録回数と平均気分
                 </Text>
                 <View style={styles.tagList}>
                   {summary.tagAnalytics.map((item) => (
@@ -148,7 +147,7 @@ export default function AnalyticsScreen() {
                       <View style={styles.tagMoodGroup}>
                         <Text style={styles.tagEmoji}>{item.averageEmoji}</Text>
                         <Text style={styles.tagMoodText}>
-                          {item.averageLabel} ({item.averageLevel})
+                          {item.averageLabel}
                         </Text>
                       </View>
                     </View>
