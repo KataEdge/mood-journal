@@ -15,9 +15,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MoodSelector from '../components/MoodSelector';
 import SafetyModal from '../components/SafetyModal';
-import { MoodOption, MoodLevel } from '../types';
+import { MoodOption, MoodLevel, Quote } from '../types';
 import { saveMoodEntry, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
-import { getRandomMessage } from '../utils/messages';
+import { getRandomQuote } from '../utils/messages';
 import {
   Colors,
   FontSize,
@@ -29,7 +29,7 @@ import {
 export default function HomeScreen() {
   const [selectedMood, setSelectedMood] = useState<MoodLevel | null>(null);
   const [note, setNote] = useState('');
-  const [message, setMessage] = useState(getRandomMessage());
+  const [quote, setQuote] = useState<Quote>(getRandomQuote());
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -61,7 +61,7 @@ export default function HomeScreen() {
   // 画面にフォーカスが戻るたびにメッセージを更新
   useFocusEffect(
     useCallback(() => {
-      refreshMessage();
+      refreshQuote();
     }, [])
   );
 
@@ -77,13 +77,13 @@ export default function HomeScreen() {
     await setFirstLaunchDone();
   };
 
-  const refreshMessage = () => {
+  const refreshQuote = () => {
     Animated.timing(messageOpacity, {
       toValue: 0,
       duration: 200,
       useNativeDriver: true,
     }).start(() => {
-      setMessage(getRandomMessage());
+      setQuote(getRandomQuote());
       Animated.timing(messageOpacity, {
         toValue: 1,
         duration: 400,
@@ -129,7 +129,7 @@ export default function HomeScreen() {
       setSaved(false);
       setSelectedMood(null);
       setNote('');
-      refreshMessage();
+      refreshQuote();
     });
   };
 
@@ -168,15 +168,18 @@ export default function HomeScreen() {
               <Text style={styles.date}>{dateString}</Text>
             </View>
 
-            {/* ポジティブメッセージ */}
+            {/* 有名人・偉人の名言 */}
             <Animated.View style={[styles.messageCard, { opacity: messageOpacity }]}>
-              <Text style={styles.messageText}>{message}</Text>
+              <Text style={styles.quoteText}>「{quote.text}」</Text>
+              <Text style={styles.quoteAuthor}>
+                — {quote.author}{quote.authorTitle ? `（${quote.authorTitle}）` : ''}
+              </Text>
               <TouchableOpacity
-                onPress={refreshMessage}
+                onPress={refreshQuote}
                 style={styles.refreshButton}
                 activeOpacity={0.6}
               >
-                <Text style={styles.refreshText}>🔄 別の言葉を見る</Text>
+                <Text style={styles.refreshText}>🔄 別の名言を見る</Text>
               </TouchableOpacity>
             </Animated.View>
 
@@ -286,11 +289,19 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: Colors.primary,
   },
-  messageText: {
+  quoteText: {
     fontSize: FontSize.md,
     color: Colors.textPrimary,
     lineHeight: 24,
     fontWeight: '500',
+  },
+  quoteAuthor: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    textAlign: 'right',
+    marginTop: Spacing.xs,
+    fontStyle: 'italic',
+    fontWeight: '600',
   },
   refreshButton: {
     marginTop: Spacing.sm,
