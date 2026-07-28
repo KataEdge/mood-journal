@@ -192,4 +192,15 @@ export interface AchievementBadge {
   currentCount: number;     // 現在の達成進捗
 }
 
+/**
+ * ユーザープロフィール情報
+ */
+export interface UserProfile {
+  nickname: string;
+  avatarType: 'emoji' | 'image';
+  avatarValue: string; // 絵文字(例: '🐱') または 画像URI
+  createdAt: string;   // ISO 8601
+}
+
+
 

@@ -8,19 +8,21 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import BreathingGuideModal from '../components/BreathingGuideModal';
 import TimePickerModal from '../components/TimePickerModal';
+import ProfileSetupModal from '../components/ProfileSetupModal';
 import { ThemeHeader } from '../components/ThemeHeader';
 import {
   getReminderSettings,
   saveReminderSettings,
   requestNotificationPermission,
 } from '../utils/notifications';
-import { ReminderSettings, ThemeType } from '../types';
-import { getMoodEntries } from '../utils/storage';
+import { ReminderSettings, ThemeType, UserProfile } from '../types';
+import { getMoodEntries, getUserProfile, saveUserProfile } from '../utils/storage';
 import { checkAndEvaluateBadges } from '../utils/streak';
 import {
   FontSize,
@@ -34,6 +36,8 @@ export default function SafetyScreen() {
   const { theme, colors, setTheme } = useTheme();
   const [showBreathingModal, setShowBreathingModal] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [reminder, setReminder] = useState<ReminderSettings>({
     enabled: false,
     hour: 21,
@@ -42,7 +46,20 @@ export default function SafetyScreen() {
 
   useEffect(() => {
     loadReminder();
+    loadProfile();
   }, []);
+
+  const loadProfile = async () => {
+    const profile = await getUserProfile();
+    setUserProfile(profile);
+  };
+
+  const handleSaveProfile = async (profile: UserProfile) => {
+    await saveUserProfile(profile);
+    setUserProfile(profile);
+    setShowProfileModal(false);
+  };
+
 
   const loadReminder = async () => {
     const settings = await getReminderSettings();
@@ -108,6 +125,43 @@ export default function SafetyScreen() {
         <View style={styles.header}>
           <ThemeHeader title="ご利用・設定 🌿" />
         </View>
+
+        {/* プロフィール（ニックネーム・アバター）設定カード */}
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardIcon}>👤</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>プロフィール設定</Text>
+          </View>
+          <Text style={[styles.cardBody, { color: colors.textSecondary, marginBottom: Spacing.sm }]}>
+            アプリ内で表示されるニックネームとアバターを変更できます。
+          </Text>
+
+          <View style={[styles.profileCardRow, { backgroundColor: colors.background }]}>
+            <View style={[styles.avatarCircle, { backgroundColor: colors.tagBg, borderColor: colors.primary }]}>
+              {userProfile?.avatarType === 'image' ? (
+                <Image source={{ uri: userProfile.avatarValue }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarEmoji}>{userProfile?.avatarValue || '🐱'}</Text>
+              )}
+            </View>
+            <View style={styles.profileTextInfo}>
+              <Text style={[styles.profileNickname, { color: colors.textPrimary }]}>
+                {userProfile?.nickname || '未設定'}
+              </Text>
+              <Text style={[styles.profileSubtext, { color: colors.textLight }]}>
+                タップして編集・変更
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.editProfileButton, { backgroundColor: colors.primary }]}
+              onPress={() => setShowProfileModal(true)}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.editProfileButtonText, { color: colors.textOnPrimary }]}>編集</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
 
         {/* カラーテーマ設定カード */}
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -349,7 +403,16 @@ export default function SafetyScreen() {
         onClose={() => setShowTimePicker(false)}
         onSave={handleSaveTime}
       />
+
+      {/* プロフィール設定モーダル */}
+      <ProfileSetupModal
+        visible={showProfileModal}
+        initialProfile={userProfile}
+        onSave={handleSaveProfile}
+        onClose={() => setShowProfileModal(false)}
+      />
     </SafeAreaView>
+
   );
 }
 
@@ -596,6 +659,50 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs + 1,
     lineHeight: 18,
   },
+  profileCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.md,
+  },
+  avatarCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  avatarEmoji: {
+    fontSize: 28,
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  profileTextInfo: {
+    flex: 1,
+  },
+  profileNickname: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+  },
+  profileSubtext: {
+    fontSize: FontSize.xs,
+    marginTop: 2,
+  },
+  editProfileButton: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: BorderRadius.full,
+  },
+  editProfileButtonText: {
+    fontSize: FontSize.xs + 1,
+    fontWeight: '700',
+  },
 });
+
 
 

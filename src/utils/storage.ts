@@ -1,10 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MoodEntry, ThemeType, MoodLevel } from '../types';
+import { MoodEntry, ThemeType, MoodLevel, UserProfile } from '../types';
 
 const STORAGE_KEY = '@mood_journal_entries';
 const FIRST_LAUNCH_KEY = '@mood_journal_first_launch';
 const THEME_KEY = '@mood_journal_theme';
 const MIGRATED_KEY = '@mood_journal_v2_migrated';
+const PROFILE_KEY = '@mood_journal_user_profile';
+
 
 /**
  * 保存されたカラーテーマを取得する
@@ -183,3 +185,30 @@ export async function deleteCustomTag(tagName: string): Promise<string[]> {
     throw error;
   }
 }
+
+/**
+ * ユーザープロフィールを取得する
+ */
+export async function getUserProfile(): Promise<UserProfile | null> {
+  try {
+    const json = await AsyncStorage.getItem(PROFILE_KEY);
+    if (!json) return null;
+    return JSON.parse(json);
+  } catch (error) {
+    console.error('Failed to get user profile:', error);
+    return null;
+  }
+}
+
+/**
+ * ユーザープロフィールを保存する
+ */
+export async function saveUserProfile(profile: UserProfile): Promise<void> {
+  try {
+    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  } catch (error) {
+    console.error('Failed to save user profile:', error);
+    throw error;
+  }
+}
+

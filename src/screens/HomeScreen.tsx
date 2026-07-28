@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import MoodSelector from '../components/MoodSelector';
 import SafetyModal from '../components/SafetyModal';
+import ProfileSetupModal from '../components/ProfileSetupModal';
 import BreathingGuideModal from '../components/BreathingGuideModal';
 import { TagSelector } from '../components/TagSelector';
 import { ThemeHeader } from '../components/ThemeHeader';
@@ -27,9 +28,10 @@ import { BadgeUnlockedModal } from '../components/BadgeUnlockedModal';
 import { MindTreeCard } from '../components/MindTreeCard';
 import { WateringModal } from '../components/WateringModal';
 import { WeeklyReportModal } from '../components/WeeklyReportModal';
-import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry, StreakInfo, AchievementBadge, MindTreeInfo, WeeklyReportData } from '../types';
-import { saveMoodEntry, getMoodEntries, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
+import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry, StreakInfo, AchievementBadge, MindTreeInfo, WeeklyReportData, UserProfile } from '../types';
+import { saveMoodEntry, getMoodEntries, isFirstLaunch, setFirstLaunchDone, getUserProfile, saveUserProfile } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
+
 import {
   calculateStreak,
   checkAndEvaluateBadges,
@@ -59,6 +61,9 @@ export default function HomeScreen() {
   const [note, setNote] = useState('');
   const [quote, setQuote] = useState<Quote>(getRandomQuote());
   const [showSafetyModal, setShowSafetyModal] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isInitialProfileSetup, setIsInitialProfileSetup] = useState(false);
   const [showBreathingModal, setShowBreathingModal] = useState(false);
   const [breathingSession, setBreathingSession] = useState<BreathingSession | null>(null);
   const [lastSavedLowEntry, setLastSavedLowEntry] = useState<MoodEntry | null>(null);
@@ -104,11 +109,21 @@ export default function HomeScreen() {
       }),
     ]).start();
 
-    // 初回起動チェック
-    checkFirstLaunch();
+    // 初回起動チェック＆プロフィール読み込み
+    loadProfileAndCheckFirstLaunch();
     // ヘルスケア連携設定とデータの読み込み
     initHealthSync();
   }, []);
+
+  const loadProfileAndCheckFirstLaunch = async () => {
+    const profile = await getUserProfile();
+    setUserProfile(profile);
+
+    const first = await isFirstLaunch();
+    if (first) {
+      setShowSafetyModal(true);
+    }
+  };
 
   const loadStreakAndBadges = async () => {
     const entries = await getMoodEntries();
@@ -134,6 +149,8 @@ export default function HomeScreen() {
       refreshQuote();
       loadHealthData();
       loadStreakAndBadges();
+      // プロフィール再読み込み
+      getUserProfile().then((p) => setUserProfile(p));
     }, [])
   );
 
@@ -160,17 +177,24 @@ export default function HomeScreen() {
     }
   };
 
-  const checkFirstLaunch = async () => {
-    const first = await isFirstLaunch();
-    if (first) {
-      setShowSafetyModal(true);
+  const handleSafetyClose = async () => {
+    setShowSafetyModal(false);
+    // 免責事項同意後、初回プロフィール設定モーダルを表示
+    setIsInitialProfileSetup(true);
+    setShowProfileModal(true);
+  };
+
+  const handleSaveProfile = async (profile: UserProfile) => {
+    await saveUserProfile(profile);
+    setUserProfile(profile);
+    setShowProfileModal(false);
+
+    if (isInitialProfileSetup) {
+      setIsInitialProfileSetup(false);
+      await setFirstLaunchDone();
     }
   };
 
-  const handleSafetyClose = async () => {
-    setShowSafetyModal(false);
-    await setFirstLaunchDone();
-  };
 
   const refreshQuote = () => {
     Animated.timing(messageOpacity, {
@@ -320,7 +344,16 @@ export default function HomeScreen() {
             ]}
           >
             {/* ヘッダー */}
-            <ThemeHeader title="こんにちは 👋" subtitle={dateString} />
+            <ThemeHeader
+              title="こんにちは 👋"
+              subtitle={dateString}
+              userProfile={userProfile}
+              onPressProfile={() => {
+                setIsInitialProfileSetup(false);
+                setShowProfileModal(true);
+              }}
+            />
+
 
             {/* 連続記録ストリーク＆アチーブメントカード */}
             <StreakCard
@@ -466,6 +499,16 @@ export default function HomeScreen() {
 
       {/* 初回起動モーダル */}
       <SafetyModal visible={showSafetyModal} onClose={handleSafetyClose} />
+
+      {/* プロフィール設定・編集モーダル */}
+      <ProfileSetupModal
+        visible={showProfileModal}
+        initialProfile={userProfile}
+        isInitialSetup={isInitialProfileSetup}
+        onSave={handleSaveProfile}
+        onClose={() => setShowProfileModal(false)}
+      />
+
 
       {/* 呼吸法ガイドモーダル */}
       <BreathingGuideModal

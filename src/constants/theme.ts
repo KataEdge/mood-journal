@@ -273,3 +273,12 @@ export const DEFAULT_PRESET_TAGS: string[] = [
   '金銭・買物',
   '移動・旅行',
 ];
+
+/**
+ * プリセットアバター絵文字
+ */
+export const AVATAR_PRESETS: string[] = [
+  '🐱', '🐶', '🐻', '🐰', '🦊', '🐼', '🐯', '🐥',
+  '🌸', '🌈', '✨', '🍀', '☕️', '🎨', '🚀', '🌟',
+];
+
