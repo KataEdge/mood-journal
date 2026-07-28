@@ -45,7 +45,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"App.tsx\"",
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"App.tsx\"",
     "test": "jest",
-    "check": "npm run lint && npm run format:check && npm run type-check && npm run test"
+    "test:coverage": "jest --coverage",
+    "check": "npm run lint && npm run format:check && npm run type-check && npm run test:coverage"
   },
   "private": true
 }

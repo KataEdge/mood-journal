@@ -53,6 +53,7 @@ AIエージェントまたは開発者は、コード変更後に必ず以下の
 | 目的 | コマンド | 説明 |
 |---|---|---|
 | **型チェック** | `npm run type-check` | TypeScript の静的型チェック (`tsc --noEmit`) |
+| **単体テスト・カバレッジ** | `npm run test:coverage` | `src/utils` のカバレッジ計測と90%閾値検証 |
 | **総合検証** | `npm run check` | CIで使用される総合検証コマンド |
 | **開発サーバー** | `npm run start` | Expo Dev Server の起動 |
 | **Web確認** | `npm run web` | Webブラウザでのローカル動作確認 |
@@ -71,6 +72,8 @@ AIエージェントまたは開発者は、コード変更後に必ず以下の
    - コミットやPR作成前には必ず `npm run check` を実行し、型エラーが 0 件であることを確認してください。
 5. **ブランチ戦略の遵守**:
    - 作業開始時は `main` へ直接変更を加えず、必ず [CONTRIBUTING.md](CONTRIBUTING.md) に従って `feature/<機能名>` や `fix/<修正内容>` などのトピックブランチを作成して作業を開始してください。
+6. **テストカバレッジ維持の義務**:
+   - `src/utils/` 配下のロジックコードを変更した場合は、単体テストを追加・更新し、全指標（Statements, Branches, Functions, Lines）で **90% 以上のカバレッジ** を維持してください（`npm run test:coverage` にて検証）。
 
 
 

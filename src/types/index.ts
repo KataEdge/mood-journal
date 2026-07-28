@@ -34,7 +34,7 @@ export interface BreathingSession {
 export interface MoodEntry {
   id: string;
   mood: MoodLevel;
-  note: string;
+  note?: string;
   timestamp: string; // ISO 8601
   tags?: string[];
   healthData?: HealthData;
