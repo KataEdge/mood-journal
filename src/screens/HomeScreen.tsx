@@ -16,18 +16,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MoodSelector from '../components/MoodSelector';
 import SafetyModal from '../components/SafetyModal';
 import { TagSelector } from '../components/TagSelector';
+import { ThemeHeader } from '../components/ThemeHeader';
 import { MoodOption, MoodLevel, Quote } from '../types';
 import { saveMoodEntry, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
 import {
-  Colors,
   FontSize,
   Spacing,
   BorderRadius,
   Shadow,
 } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
   const [selectedMood, setSelectedMood] = useState<MoodLevel | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [note, setNote] = useState('');
@@ -154,7 +156,7 @@ export default function HomeScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -175,15 +177,12 @@ export default function HomeScreen() {
             ]}
           >
             {/* ヘッダー */}
-            <View style={styles.header}>
-              <Text style={styles.greeting}>こんにちは 👋</Text>
-              <Text style={styles.date}>{dateString}</Text>
-            </View>
+            <ThemeHeader title="こんにちは 👋" subtitle={dateString} />
 
             {/* 有名人・偉人の名言 */}
-            <Animated.View style={[styles.messageCard, { opacity: messageOpacity }]}>
-              <Text style={styles.quoteText}>「{quote.text}」</Text>
-              <Text style={styles.quoteAuthor}>
+            <Animated.View style={[styles.messageCard, { backgroundColor: colors.surface, borderLeftColor: colors.primary, opacity: messageOpacity }]}>
+              <Text style={[styles.quoteText, { color: colors.textPrimary }]}>「{quote.text}」</Text>
+              <Text style={[styles.quoteAuthor, { color: colors.textSecondary }]}>
                 — {quote.author}{quote.authorTitle ? `（${quote.authorTitle}）` : ''}
               </Text>
               <TouchableOpacity
@@ -191,7 +190,7 @@ export default function HomeScreen() {
                 style={styles.refreshButton}
                 activeOpacity={0.6}
               >
-                <Text style={styles.refreshText}>🔄 別の名言を見る</Text>
+                <Text style={[styles.refreshText, { color: colors.primaryDark }]}>🔄 別の名言を見る</Text>
               </TouchableOpacity>
             </Animated.View>
 
@@ -208,32 +207,33 @@ export default function HomeScreen() {
             />
 
             {/* メモ入力 */}
-            <View style={styles.noteCard}>
-              <Text style={styles.noteLabel}>💭 一言メモ（任意）</Text>
+            <View style={[styles.noteCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.noteLabel, { color: colors.textPrimary }]}>💭 一言メモ（任意）</Text>
               <TextInput
-                style={styles.noteInput}
+                style={[styles.noteInput, { backgroundColor: colors.background, color: colors.textPrimary }]}
                 placeholder="今の気持ちを一言..."
-                placeholderTextColor={Colors.textLight}
+                placeholderTextColor={colors.textLight}
                 value={note}
                 onChangeText={setNote}
                 multiline
                 maxLength={200}
                 textAlignVertical="top"
               />
-              <Text style={styles.charCount}>{note.length} / 200</Text>
+              <Text style={[styles.charCount, { color: colors.textLight }]}>{note.length} / 200</Text>
             </View>
 
             {/* 保存ボタン */}
             <TouchableOpacity
               style={[
                 styles.saveButton,
-                !selectedMood && styles.saveButtonDisabled,
+                { backgroundColor: colors.primary },
+                !selectedMood && { backgroundColor: colors.border },
               ]}
               activeOpacity={0.8}
               onPress={handleSave}
               disabled={!selectedMood || saved}
             >
-              <Text style={styles.saveButtonText}>
+              <Text style={[styles.saveButtonText, { color: selectedMood ? colors.textOnPrimary : colors.textLight }]}>
                 {saved ? '✓ 保存しました！' : '記録する'}
               </Text>
             </TouchableOpacity>
@@ -255,7 +255,7 @@ export default function HomeScreen() {
                 },
               ]}
             >
-              <Text style={styles.savedText}>
+              <Text style={[styles.savedText, { color: colors.textSecondary }]}>
                 🎉 今日の気持ちを記録しました
               </Text>
             </Animated.View>
@@ -272,7 +272,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   flex: {
     flex: 1,
@@ -286,36 +285,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
   },
-  header: {
-    marginBottom: Spacing.lg,
-  },
-  greeting: {
-    fontSize: FontSize.xxl,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  date: {
-    fontSize: FontSize.md,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
-  },
   messageCard: {
-    backgroundColor: '#E8F4FD',
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     marginBottom: Spacing.lg,
     borderLeftWidth: 4,
-    borderLeftColor: Colors.primary,
+    ...Shadow.sm,
   },
   quoteText: {
     fontSize: FontSize.md,
-    color: Colors.textPrimary,
     lineHeight: 24,
     fontWeight: '500',
   },
   quoteAuthor: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
     textAlign: 'right',
     marginTop: Spacing.xs,
     fontStyle: 'italic',
@@ -327,10 +310,8 @@ const styles = StyleSheet.create({
   },
   refreshText: {
     fontSize: FontSize.sm,
-    color: Colors.primaryDark,
   },
   noteCard: {
-    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     marginTop: Spacing.lg,
@@ -339,40 +320,30 @@ const styles = StyleSheet.create({
   noteLabel: {
     fontSize: FontSize.md,
     fontWeight: '600',
-    color: Colors.textPrimary,
     marginBottom: Spacing.sm,
   },
   noteInput: {
-    backgroundColor: Colors.background,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     fontSize: FontSize.md,
-    color: Colors.textPrimary,
     minHeight: 80,
     maxHeight: 120,
   },
   charCount: {
     fontSize: FontSize.xs,
-    color: Colors.textLight,
     textAlign: 'right',
     marginTop: Spacing.xs,
   },
   saveButton: {
-    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.full,
     paddingVertical: Spacing.md + 2,
     alignItems: 'center',
     marginTop: Spacing.xl,
     ...Shadow.md,
   },
-  saveButtonDisabled: {
-    backgroundColor: Colors.border,
-    ...Shadow.sm,
-  },
   saveButtonText: {
     fontSize: FontSize.lg,
     fontWeight: '700',
-    color: Colors.textPrimary,
   },
   savedMessage: {
     alignItems: 'center',
@@ -380,6 +351,6 @@ const styles = StyleSheet.create({
   },
   savedText: {
     fontSize: FontSize.md,
-    color: Colors.textSecondary,
   },
 });
+

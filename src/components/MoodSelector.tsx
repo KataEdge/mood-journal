@@ -7,14 +7,8 @@ import {
   Animated,
 } from 'react-native';
 import { MoodOption } from '../types';
-import { MOOD_OPTIONS } from '../constants/theme';
-import {
-  Colors,
-  FontSize,
-  Spacing,
-  BorderRadius,
-  Shadow,
-} from '../constants/theme';
+import { MOOD_OPTIONS, FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface MoodSelectorProps {
   selectedMood: number | null;
@@ -22,12 +16,21 @@ interface MoodSelectorProps {
 }
 
 export default function MoodSelector({ selectedMood, onSelect }: MoodSelectorProps) {
+  const { colors } = useTheme();
+
+  const dynamicMoodOptions: MoodOption[] = MOOD_OPTIONS.map((opt) => {
+    const moodColorKey = `mood${opt.level}` as 'mood1' | 'mood2' | 'mood3' | 'mood4' | 'mood5';
+    return {
+      ...opt,
+      color: colors[moodColorKey],
+    };
+  });
+
   const scaleValues = React.useRef(
-    MOOD_OPTIONS.map(() => new Animated.Value(1))
+    dynamicMoodOptions.map(() => new Animated.Value(1))
   ).current;
 
   const handlePress = (option: MoodOption, index: number) => {
-    // 選択アニメーション：バウンス効果
     Animated.sequence([
       Animated.timing(scaleValues[index], {
         toValue: 1.3,
@@ -42,7 +45,6 @@ export default function MoodSelector({ selectedMood, onSelect }: MoodSelectorPro
       }),
     ]).start();
 
-    // 他のアイコンを縮小
     scaleValues.forEach((val, i) => {
       if (i !== index) {
         Animated.spring(val, {
@@ -58,10 +60,10 @@ export default function MoodSelector({ selectedMood, onSelect }: MoodSelectorPro
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>今の気分は？</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.label, { color: colors.textPrimary }]}>今の気分は？</Text>
       <View style={styles.moodRow}>
-        {MOOD_OPTIONS.map((option, index) => {
+        {dynamicMoodOptions.map((option, index) => {
           const isSelected = selectedMood === option.level;
           return (
             <TouchableOpacity
@@ -73,6 +75,7 @@ export default function MoodSelector({ selectedMood, onSelect }: MoodSelectorPro
               <Animated.View
                 style={[
                   styles.emojiContainer,
+                  { backgroundColor: colors.divider },
                   isSelected && {
                     backgroundColor: option.color + '30',
                     borderColor: option.color,
@@ -86,7 +89,8 @@ export default function MoodSelector({ selectedMood, onSelect }: MoodSelectorPro
               <Text
                 style={[
                   styles.moodLabel,
-                  isSelected && { color: Colors.textPrimary, fontWeight: '600' },
+                  { color: colors.textSecondary },
+                  isSelected && { color: colors.textPrimary, fontWeight: '600' },
                 ]}
               >
                 {option.label}
@@ -101,7 +105,6 @@ export default function MoodSelector({ selectedMood, onSelect }: MoodSelectorPro
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     ...Shadow.md,
@@ -109,7 +112,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: FontSize.lg,
     fontWeight: '700',
-    color: Colors.textPrimary,
     textAlign: 'center',
     marginBottom: Spacing.lg,
   },
@@ -126,7 +128,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.divider,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.xs,
@@ -136,8 +137,8 @@ const styles = StyleSheet.create({
   },
   moodLabel: {
     fontSize: FontSize.xs,
-    color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: 2,
   },
 });
+

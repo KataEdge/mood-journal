@@ -7,9 +7,10 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { Colors, FontSize, Spacing, BorderRadius } from '../constants/theme';
+import { FontSize, Spacing, BorderRadius } from '../constants/theme';
 import { getAllTags, addCustomTag, deleteCustomTag } from '../utils/storage';
 import { DEFAULT_PRESET_TAGS } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface TagSelectorProps {
   selectedTags: string[];
@@ -20,6 +21,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   selectedTags,
   onToggleTag,
 }) => {
+  const { colors } = useTheme();
   const [allTags, setAllTags] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [newTagText, setNewTagText] = useState('');
@@ -77,7 +79,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>要因・関連タグ (複数選択可)</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>要因・関連タグ (複数選択可)</Text>
 
       <View style={styles.tagWrap}>
         {allTags.map((tag) => {
@@ -89,8 +91,9 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
               key={tag}
               style={[
                 styles.chip,
-                isSelected && styles.chipSelected,
-                isCustom && styles.customChipBorder,
+                { backgroundColor: colors.tagBg },
+                isSelected && { backgroundColor: colors.tagSelectedBg },
+                isCustom && { borderWidth: 1, borderColor: colors.secondaryDark },
               ]}
               onPress={() => onToggleTag(tag)}
               onLongPress={() => isCustom && handleDeleteCustomTag(tag)}
@@ -99,7 +102,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
               <Text
                 style={[
                   styles.chipText,
-                  isSelected && styles.chipTextSelected,
+                  { color: colors.tagText },
+                  isSelected && { color: colors.tagSelectedText, fontWeight: '700' },
                 ]}
               >
                 {isSelected ? '✓ ' : ''}# {tag}
@@ -110,25 +114,25 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
         {!isAdding ? (
           <TouchableOpacity
-            style={styles.addChip}
+            style={[styles.addChip, { borderColor: colors.primaryDark, backgroundColor: colors.surface }]}
             onPress={() => setIsAdding(true)}
           >
-            <Text style={styles.addChipText}>+ 新しいタグ</Text>
+            <Text style={[styles.addChipText, { color: colors.primaryDark }]}>+ 新しいタグ</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.inputWrap}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]}
               placeholder="タグ名を入力..."
-              placeholderTextColor={Colors.textLight}
+              placeholderTextColor={colors.textLight}
               value={newTagText}
               onChangeText={setNewTagText}
               autoFocus
               maxLength={15}
               onSubmitEditing={handleAddTag}
             />
-            <TouchableOpacity style={styles.addBtn} onPress={handleAddTag}>
-              <Text style={styles.addBtnText}>追加</Text>
+            <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primary }]} onPress={handleAddTag}>
+              <Text style={[styles.addBtnText, { color: colors.textOnPrimary }]}>追加</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.cancelBtn}
@@ -137,7 +141,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                 setIsAdding(false);
               }}
             >
-              <Text style={styles.cancelBtnText}>✕</Text>
+              <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>✕</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -153,7 +157,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: FontSize.sm,
     fontWeight: '600',
-    color: Colors.textSecondary,
     marginBottom: Spacing.sm,
   },
   tagWrap: {
@@ -162,41 +165,25 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   chip: {
-    backgroundColor: Colors.tagBg,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
     borderRadius: BorderRadius.full,
     marginBottom: Spacing.xs,
   },
-  customChipBorder: {
-    borderWidth: 1,
-    borderColor: Colors.secondaryDark,
-  },
-  chipSelected: {
-    backgroundColor: Colors.tagSelectedBg,
-  },
   chipText: {
     fontSize: FontSize.xs + 1,
-    color: Colors.tagText,
     fontWeight: '500',
-  },
-  chipTextSelected: {
-    color: Colors.tagSelectedText,
-    fontWeight: '700',
   },
   addChip: {
     borderWidth: 1,
-    borderColor: Colors.primaryDark,
     borderStyle: 'dashed',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
     borderRadius: BorderRadius.full,
     marginBottom: Spacing.xs,
-    backgroundColor: Colors.surface,
   },
   addChipText: {
     fontSize: FontSize.xs + 1,
-    color: Colors.primaryDark,
     fontWeight: '600',
   },
   inputWrap: {
@@ -205,25 +192,20 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   input: {
-    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
     fontSize: FontSize.xs + 1,
-    color: Colors.textPrimary,
     minWidth: 100,
   },
   addBtn: {
-    backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs + 2,
     borderRadius: BorderRadius.md,
     marginLeft: Spacing.xs,
   },
   addBtnText: {
-    color: Colors.textPrimary,
     fontSize: FontSize.xs,
     fontWeight: '600',
   },
@@ -232,7 +214,7 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.xs,
   },
   cancelBtnText: {
-    color: Colors.textSecondary,
     fontSize: FontSize.sm,
   },
 });
+

@@ -1,8 +1,37 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MoodEntry } from '../types';
+import { MoodEntry, ThemeType } from '../types';
 
 const STORAGE_KEY = '@mood_journal_entries';
 const FIRST_LAUNCH_KEY = '@mood_journal_first_launch';
+const THEME_KEY = '@mood_journal_theme';
+
+/**
+ * 保存されたカラーテーマを取得する
+ */
+export async function getStoredTheme(): Promise<ThemeType> {
+  try {
+    const value = await AsyncStorage.getItem(THEME_KEY);
+    if (value === 'light' || value === 'dark' || value === 'warm') {
+      return value;
+    }
+    return 'light';
+  } catch (error) {
+    console.error('Failed to get stored theme:', error);
+    return 'light';
+  }
+}
+
+/**
+ * カラーテーマを保存する
+ */
+export async function saveStoredTheme(theme: ThemeType): Promise<void> {
+  try {
+    await AsyncStorage.setItem(THEME_KEY, theme);
+  } catch (error) {
+    console.error('Failed to save stored theme:', error);
+  }
+}
+
 
 /**
  * 気分エントリを保存する

@@ -13,21 +13,23 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import BreathingGuideModal from '../components/BreathingGuideModal';
 import TimePickerModal from '../components/TimePickerModal';
+import { ThemeHeader } from '../components/ThemeHeader';
 import {
   getReminderSettings,
   saveReminderSettings,
   requestNotificationPermission,
 } from '../utils/notifications';
-import { ReminderSettings } from '../types';
+import { ReminderSettings, ThemeType } from '../types';
 import {
-  Colors,
   FontSize,
   Spacing,
   BorderRadius,
   Shadow,
 } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SafetyScreen() {
+  const { theme, colors, setTheme } = useTheme();
   const [showBreathingModal, setShowBreathingModal] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [reminder, setReminder] = useState<ReminderSettings>({
@@ -89,73 +91,129 @@ export default function SafetyScreen() {
 
   const formattedTime = `${reminder.hour.toString().padStart(2, '0')}:${reminder.minute.toString().padStart(2, '0')}`;
 
+  const themeOptions: { type: ThemeType; label: string; icon: string; desc: string }[] = [
+    { type: 'light', label: 'ノーマル', icon: 'sparkles', desc: 'パステルで爽やか' },
+    { type: 'dark', label: 'ダーク', icon: 'moon', desc: '目に優しいシック' },
+    { type: 'warm', label: 'ウォーム', icon: 'sunny', desc: '温かみのある暖色' },
+  ];
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>ご利用・セルフケア 🌿</Text>
+          <ThemeHeader title="ご利用・設定 🌿" />
+        </View>
+
+        {/* カラーテーマ設定カード */}
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardIcon}>🎨</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>カラーテーマ設定</Text>
+          </View>
+          <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
+            アプリ全体の配色をお好みに合わせて変更できます。
+          </Text>
+
+          <View style={styles.themeSelectorRow}>
+            {themeOptions.map((opt) => {
+              const isSelected = theme === opt.type;
+              return (
+                <TouchableOpacity
+                  key={opt.type}
+                  style={[
+                    styles.themeOptionCard,
+                    { backgroundColor: colors.background, borderColor: colors.border },
+                    isSelected && { borderColor: colors.primaryDark, borderWidth: 2, backgroundColor: colors.surfaceElevated },
+                  ]}
+                  onPress={() => setTheme(opt.type)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={opt.icon as any}
+                    size={22}
+                    color={isSelected ? colors.primaryDark : colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.themeOptionLabel,
+                      { color: colors.textPrimary },
+                      isSelected && { color: colors.primaryDark, fontWeight: '700' },
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                  <Text style={[styles.themeOptionDesc, { color: colors.textLight }]}>{opt.desc}</Text>
+                  {isSelected && (
+                    <View style={[styles.themeCheckBadge, { backgroundColor: colors.primaryDark }]}>
+                      <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         {/* 呼吸法セルフケアカード */}
-        <View style={[styles.card, styles.breathingCard]}>
+        <View style={[styles.card, styles.breathingCard, { backgroundColor: colors.surface, borderLeftColor: colors.primaryDark }]}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardIcon}>🍃</Text>
-            <Text style={styles.cardTitle}>4-7-8 呼吸法ガイド</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>4-7-8 呼吸法ガイド</Text>
           </View>
-          <Text style={styles.cardBody}>
+          <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
             気分が落ち着かないときや就寝前に。4秒吸って7秒止め、8秒かけてゆっくり吐く深呼吸（3セット）でリラックスを促します。
           </Text>
           <TouchableOpacity
-            style={styles.actionButton}
+            style={[styles.actionButton, { backgroundColor: colors.primary }]}
             onPress={() => setShowBreathingModal(true)}
             activeOpacity={0.8}
           >
-            <Ionicons name="leaf-outline" size={20} color={Colors.textPrimary} style={styles.actionBtnIcon} />
-            <Text style={styles.actionButtonText}>呼吸ガイドを始める (3セット)</Text>
+            <Ionicons name="leaf-outline" size={20} color={colors.textOnPrimary} style={styles.actionBtnIcon} />
+            <Text style={[styles.actionButtonText, { color: colors.textOnPrimary }]}>呼吸ガイドを始める (3セット)</Text>
           </TouchableOpacity>
         </View>
 
         {/* リマインダー通知設定カード */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardIcon}>🔔</Text>
-            <Text style={styles.cardTitle}>毎日の記録リマインダー</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>毎日の記録リマインダー</Text>
           </View>
-          <Text style={styles.cardBody}>
+          <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
             1日の終わりに気持ちを振り返る時間を。お好みの時刻にやさしいリマインダーをお届けします。
           </Text>
 
-          <View style={styles.settingRow}>
+          <View style={[styles.settingRow, { borderTopColor: colors.divider }]}>
             <View style={styles.timeInfo}>
-              <Text style={styles.settingLabel}>毎日の通知</Text>
+              <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>毎日の通知</Text>
               <TouchableOpacity
                 style={styles.timePickerButton}
                 onPress={() => setShowTimePicker(true)}
                 activeOpacity={0.7}
               >
-                <Ionicons name="time-outline" size={16} color={Colors.primaryDark} style={{ marginRight: 4 }} />
-                <Text style={styles.timePickerButtonText}>{formattedTime}</Text>
-                <Text style={styles.timePickerHint}> (変更)</Text>
+                <Ionicons name="time-outline" size={16} color={colors.primaryDark} style={{ marginRight: 4 }} />
+                <Text style={[styles.timePickerButtonText, { color: colors.primaryDark }]}>{formattedTime}</Text>
+                <Text style={[styles.timePickerHint, { color: colors.textLight }]}> (変更)</Text>
               </TouchableOpacity>
             </View>
 
             <Switch
               value={reminder.enabled}
               onValueChange={handleToggleReminder}
-              trackColor={{ false: Colors.border, true: Colors.primary }}
-              thumbColor={reminder.enabled ? Colors.primaryDark : '#f4f3f4'}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={reminder.enabled ? colors.primaryDark : '#f4f3f4'}
             />
           </View>
         </View>
 
         {/* 免責事項 */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Text style={styles.cardIcon}>📋</Text>
-          <Text style={styles.cardTitle}>このアプリについて</Text>
-          <Text style={styles.cardBody}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>このアプリについて</Text>
+          <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
             「感情日記」は日々の感情を記録し、セルフケアを支援するためのアプリです。
             {'\n\n'}
             記録した情報はお使いの端末内にのみ保存され、外部に送信されることはありません。
@@ -163,10 +221,10 @@ export default function SafetyScreen() {
         </View>
 
         {/* 注意事項 */}
-        <View style={[styles.card, styles.warningCard]}>
+        <View style={[styles.card, styles.warningCard, { backgroundColor: colors.surface, borderLeftColor: colors.warning }]}>
           <Text style={styles.cardIcon}>⚠️</Text>
-          <Text style={styles.cardTitle}>ご注意ください</Text>
-          <Text style={styles.cardBody}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>ご注意ください</Text>
+          <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
             本アプリは医療機関の診断・治療に代わるものではありません。
             {'\n\n'}
             心身の不調が強い場合は、無理をせず専門医や相談機関をご利用ください。
@@ -176,10 +234,10 @@ export default function SafetyScreen() {
         </View>
 
         {/* 相談窓口 */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Text style={styles.cardIcon}>📞</Text>
-          <Text style={styles.cardTitle}>相談窓口</Text>
-          <Text style={styles.cardSubtitle}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>相談窓口</Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>
             つらい時は、一人で抱え込まないでください
           </Text>
 
@@ -204,9 +262,9 @@ export default function SafetyScreen() {
         </View>
 
         {/* ヒント */}
-        <View style={[styles.card, styles.tipCard]}>
+        <View style={[styles.card, styles.tipCard, { backgroundColor: colors.surface, borderLeftColor: colors.success }]}>
           <Text style={styles.cardIcon}>💡</Text>
-          <Text style={styles.cardTitle}>セルフケアのヒント</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>セルフケアのヒント</Text>
           <View style={styles.tipList}>
             <TipItem text="毎日の気分を記録する習慣をつけましょう" />
             <TipItem text="十分な睡眠をとることを心がけましょう" />
@@ -216,7 +274,7 @@ export default function SafetyScreen() {
           </View>
         </View>
 
-        <Text style={styles.version}>感情日記 v1.1.0</Text>
+        <Text style={[styles.version, { color: colors.textLight }]}>感情日記 v1.1.0</Text>
       </ScrollView>
 
       {/* 呼吸法ガイドモーダル */}
@@ -248,29 +306,33 @@ function HelpLine({
   description: string;
   onCall: (number: string) => void;
 }) {
+  const { colors } = useTheme();
+
   return (
     <TouchableOpacity
-      style={styles.helpLine}
+      style={[styles.helpLine, { backgroundColor: colors.background }]}
       activeOpacity={0.7}
       onPress={() => onCall(number)}
     >
       <View style={styles.helpLineInfo}>
-        <Text style={styles.helpLineName}>{name}</Text>
-        <Text style={styles.helpLineDesc}>{description}</Text>
+        <Text style={[styles.helpLineName, { color: colors.textPrimary }]}>{name}</Text>
+        <Text style={[styles.helpLineDesc, { color: colors.textSecondary }]}>{description}</Text>
       </View>
       <View style={styles.helpLineNumber}>
-        <Text style={styles.helpLineNumberText}>{number}</Text>
-        <Text style={styles.helpLineAction}>タップで電話</Text>
+        <Text style={[styles.helpLineNumberText, { color: colors.primaryDark }]}>{number}</Text>
+        <Text style={[styles.helpLineAction, { color: colors.textLight }]}>タップで電話</Text>
       </View>
     </TouchableOpacity>
   );
 }
 
 function TipItem({ text }: { text: string }) {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.tipItem}>
       <Text style={styles.tipBullet}>🌱</Text>
-      <Text style={styles.tipText}>{text}</Text>
+      <Text style={[styles.tipText, { color: colors.textSecondary }]}>{text}</Text>
     </View>
   );
 }
@@ -278,7 +340,6 @@ function TipItem({ text }: { text: string }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   scrollContent: {
     paddingHorizontal: Spacing.lg,
@@ -286,15 +347,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: Spacing.md,
-    paddingBottom: Spacing.md,
-  },
-  headerTitle: {
-    fontSize: FontSize.xxl,
-    fontWeight: '700',
-    color: Colors.textPrimary,
   },
   card: {
-    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
@@ -305,13 +359,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.xs,
   },
+  themeSelectorRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  themeOptionCard: {
+    flex: 1,
+    padding: Spacing.sm + 2,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  themeOptionLabel: {
+    fontSize: FontSize.xs + 1,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  themeOptionDesc: {
+    fontSize: 10,
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  themeCheckBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 16,
+    height: 16,
+    borderRadius: BorderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   breathingCard: {
     borderLeftWidth: 4,
-    borderLeftColor: Colors.primaryDark,
-    backgroundColor: '#F3F9FE',
   },
   actionButton: {
-    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.full,
     paddingVertical: Spacing.sm + 4,
     flexDirection: 'row',
@@ -326,7 +410,6 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.textPrimary,
   },
   settingRow: {
     flexDirection: 'row',
@@ -335,12 +418,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: Colors.divider,
   },
   settingLabel: {
     fontSize: FontSize.md,
     fontWeight: '600',
-    color: Colors.textPrimary,
   },
   timeInfo: {
     flex: 1,
@@ -353,21 +434,15 @@ const styles = StyleSheet.create({
   timePickerButtonText: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.primaryDark,
   },
   timePickerHint: {
     fontSize: FontSize.xs,
-    color: Colors.textLight,
   },
   warningCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#FFD93D',
-    backgroundColor: '#FFFDF5',
   },
   tipCard: {
     borderLeftWidth: 4,
-    borderLeftColor: Colors.success,
-    backgroundColor: '#F5FFF9',
   },
   cardIcon: {
     fontSize: 28,
@@ -376,23 +451,19 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: FontSize.lg,
     fontWeight: '700',
-    color: Colors.textPrimary,
   },
   cardSubtitle: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
     marginBottom: Spacing.md,
   },
   cardBody: {
     fontSize: FontSize.md,
-    color: Colors.textSecondary,
     lineHeight: 24,
   },
   helpLine: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.background,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
@@ -404,11 +475,9 @@ const styles = StyleSheet.create({
   helpLineName: {
     fontSize: FontSize.md,
     fontWeight: '600',
-    color: Colors.textPrimary,
   },
   helpLineDesc: {
     fontSize: FontSize.xs,
-    color: Colors.textSecondary,
     marginTop: 2,
   },
   helpLineNumber: {
@@ -417,11 +486,9 @@ const styles = StyleSheet.create({
   helpLineNumberText: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.primaryDark,
   },
   helpLineAction: {
     fontSize: FontSize.xs,
-    color: Colors.textLight,
     marginTop: 2,
   },
   tipList: {
@@ -439,15 +506,14 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
     flex: 1,
     lineHeight: 20,
   },
   version: {
     fontSize: FontSize.xs,
-    color: Colors.textLight,
     textAlign: 'center',
     marginTop: Spacing.lg,
   },
 });
+
 

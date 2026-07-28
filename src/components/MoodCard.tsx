@@ -1,15 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { MoodEntry } from '../types';
-import { MOOD_OPTIONS } from '../constants/theme';
-import {
-  Colors,
-  FontSize,
-  Spacing,
-  BorderRadius,
-  Shadow,
-} from '../constants/theme';
+import { MOOD_OPTIONS, FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface MoodCardProps {
   entry: MoodEntry;
@@ -17,7 +10,12 @@ interface MoodCardProps {
 }
 
 export default function MoodCard({ entry, onDelete }: MoodCardProps) {
+  const { colors } = useTheme();
+
+  const moodColorKey = `mood${entry.mood}` as 'mood1' | 'mood2' | 'mood3' | 'mood4' | 'mood5';
   const moodOption = MOOD_OPTIONS.find((m) => m.level === entry.mood);
+  const moodColor = colors[moodColorKey] || colors.primary;
+
   const date = new Date(entry.timestamp);
   const timeString = date.toLocaleTimeString('ja-JP', {
     hour: '2-digit',
@@ -45,24 +43,24 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
       onLongPress={handleLongPress}
       delayLongPress={500}
     >
-      <View style={[styles.card, { borderLeftColor: moodOption?.color || Colors.primary }]}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderLeftColor: moodColor }]}>
         <View style={styles.header}>
-          <View style={[styles.emojiContainer, { backgroundColor: (moodOption?.color || Colors.primary) + '20' }]}>
+          <View style={[styles.emojiContainer, { backgroundColor: moodColor + '20' }]}>
             <Text style={styles.emoji}>{moodOption?.emoji || '😐'}</Text>
           </View>
           <View style={styles.headerText}>
-            <Text style={styles.moodLabel}>{moodOption?.label || '記録'}</Text>
-            <Text style={styles.time}>{timeString}</Text>
+            <Text style={[styles.moodLabel, { color: colors.textPrimary }]}>{moodOption?.label || '記録'}</Text>
+            <Text style={[styles.time, { color: colors.textSecondary }]}>{timeString}</Text>
           </View>
         </View>
         {entry.note ? (
-          <Text style={styles.note}>{entry.note}</Text>
+          <Text style={[styles.note, { color: colors.textSecondary, borderTopColor: colors.divider }]}>{entry.note}</Text>
         ) : null}
         {entry.tags && entry.tags.length > 0 ? (
           <View style={styles.tagsContainer}>
             {entry.tags.map((tag) => (
-              <View key={tag} style={styles.tagBadge}>
-                <Text style={styles.tagBadgeText}>#{tag}</Text>
+              <View key={tag} style={[styles.tagBadge, { backgroundColor: colors.tagBg }]}>
+                <Text style={[styles.tagBadgeText, { color: colors.tagText }]}>#{tag}</Text>
               </View>
             ))}
           </View>
@@ -74,7 +72,6 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
@@ -102,20 +99,16 @@ const styles = StyleSheet.create({
   moodLabel: {
     fontSize: FontSize.md,
     fontWeight: '600',
-    color: Colors.textPrimary,
   },
   time: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
     marginTop: 2,
   },
   note: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
     marginTop: Spacing.sm,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: Colors.divider,
     lineHeight: 20,
   },
   tagsContainer: {
@@ -125,14 +118,13 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   tagBadge: {
-    backgroundColor: Colors.tagBg,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: BorderRadius.sm,
   },
   tagBadgeText: {
     fontSize: FontSize.xs,
-    color: Colors.textSecondary,
     fontWeight: '500',
   },
 });
+

@@ -9,14 +9,14 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MoodCard from '../components/MoodCard';
+import { ThemeHeader } from '../components/ThemeHeader';
 import { MoodEntry } from '../types';
 import { getMoodEntries, deleteMoodEntry } from '../utils/storage';
 import {
-  Colors,
   FontSize,
   Spacing,
-  BorderRadius,
 } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface Section {
   title: string;
@@ -24,6 +24,7 @@ interface Section {
 }
 
 export default function HistoryScreen() {
+  const { colors } = useTheme();
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +74,6 @@ export default function HistoryScreen() {
   };
 
   const renderSectionHeader = ({ section }: { section: Section }) => {
-    // セクションの気分サマリーを表示
     const moodEmojis: Record<number, string> = {
       1: '😄', 2: '🙂', 3: '😐', 4: '😔', 5: '😢',
     };
@@ -81,7 +81,7 @@ export default function HistoryScreen() {
 
     return (
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{section.title}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{section.title}</Text>
         <Text style={styles.sectionEmojis}>{emojis}</Text>
       </View>
     );
@@ -96,8 +96,8 @@ export default function HistoryScreen() {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyIcon}>📝</Text>
-        <Text style={styles.emptyTitle}>まだ記録がありません</Text>
-        <Text style={styles.emptyBody}>
+        <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>まだ記録がありません</Text>
+        <Text style={[styles.emptyBody, { color: colors.textSecondary }]}>
           ホーム画面から今の気持ちを{'\n'}記録してみましょう
         </Text>
       </View>
@@ -107,14 +107,12 @@ export default function HistoryScreen() {
   const totalEntries = sections.reduce((sum, s) => sum + s.data.length, 0);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>履歴 📖</Text>
-        {totalEntries > 0 && (
-          <Text style={styles.headerSubtitle}>
-            {totalEntries}件の記録
-          </Text>
-        )}
+        <ThemeHeader
+          title="履歴 📖"
+          subtitle={totalEntries > 0 ? `${totalEntries}件の記録` : undefined}
+        />
       </View>
 
       <Animated.View style={[styles.flex, { opacity: fadeAnim }]}>
@@ -130,10 +128,9 @@ export default function HistoryScreen() {
         />
       </Animated.View>
 
-
       {totalEntries > 0 && (
-        <View style={styles.hintContainer}>
-          <Text style={styles.hintText}>💡 長押しで記録を削除できます</Text>
+        <View style={[styles.hintContainer, { borderTopColor: colors.divider }]}>
+          <Text style={[styles.hintText, { color: colors.textLight }]}>💡 長押しで記録を削除できます</Text>
         </View>
       )}
     </SafeAreaView>
@@ -143,7 +140,6 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   flex: {
     flex: 1,
@@ -151,17 +147,6 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
-    paddingBottom: Spacing.md,
-  },
-  headerTitle: {
-    fontSize: FontSize.xxl,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
   },
   listContent: {
     paddingHorizontal: Spacing.lg,
@@ -178,7 +163,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.textPrimary,
   },
   sectionEmojis: {
     fontSize: FontSize.sm,
@@ -196,12 +180,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: FontSize.xl,
     fontWeight: '700',
-    color: Colors.textPrimary,
     marginBottom: Spacing.sm,
   },
   emptyBody: {
     fontSize: FontSize.md,
-    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -209,10 +191,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: Colors.divider,
   },
   hintText: {
     fontSize: FontSize.xs,
-    color: Colors.textLight,
   },
 });
+

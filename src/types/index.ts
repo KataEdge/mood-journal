@@ -5,6 +5,12 @@
 export type MoodLevel = 1 | 2 | 3 | 4 | 5;
 
 /**
+ * カラーテーマの型定義
+ */
+export type ThemeType = 'light' | 'dark' | 'warm';
+
+
+/**
  * 気分の記録エントリ
  */
 export interface MoodEntry {

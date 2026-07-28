@@ -1,10 +1,48 @@
-import { MoodOption } from '../types';
+import { MoodOption, ThemeType } from '../types';
+
+export interface ThemeColors {
+  primary: string;
+  primaryDark: string;
+  secondary: string;
+  secondaryDark: string;
+  accent: string;
+  accentDark: string;
+
+  background: string;
+  surface: string;
+  surfaceElevated: string;
+
+  textPrimary: string;
+  textSecondary: string;
+  textLight: string;
+  textOnPrimary: string;
+
+  border: string;
+  divider: string;
+
+  success: string;
+  warning: string;
+  error: string;
+
+  mood1: string;
+  mood2: string;
+  mood3: string;
+  mood4: string;
+  mood5: string;
+
+  tagBg: string;
+  tagSelectedBg: string;
+  tagText: string;
+  tagSelectedText: string;
+
+  shadow: string;
+  statusBar: 'light' | 'dark';
+}
 
 /**
- * アプリ全体のカラーパレット
- * パステルカラーを基調とした柔らかい配色
+ * ノーマル（ライト）テーマ
  */
-export const Colors = {
+export const LightThemeColors: ThemeColors = {
   primary: '#A8D8EA',
   primaryDark: '#7EC8D9',
   secondary: '#AA96DA',
@@ -28,11 +66,11 @@ export const Colors = {
   warning: '#FFD3B6',
   error: '#FF8B94',
 
-  mood1: '#FFD93D', // とても良い - 明るい黄色
-  mood2: '#6BCB77', // 良い - グリーン
-  mood3: '#A8D8EA', // 普通 - ペールブルー
-  mood4: '#AA96DA', // 悪い - ラベンダー
-  mood5: '#FF8B94', // とても悪い - ソフトピンク
+  mood1: '#FFD93D',
+  mood2: '#6BCB77',
+  mood3: '#A8D8EA',
+  mood4: '#AA96DA',
+  mood5: '#FF8B94',
 
   tagBg: '#EDF2F7',
   tagSelectedBg: '#AA96DA',
@@ -40,7 +78,113 @@ export const Colors = {
   tagSelectedText: '#FFFFFF',
 
   shadow: '#000000',
-} as const;
+  statusBar: 'dark',
+};
+
+/**
+ * ダークテーマ
+ */
+export const DarkThemeColors: ThemeColors = {
+  primary: '#5B9BD5',
+  primaryDark: '#41729F',
+  secondary: '#887BB0',
+  secondaryDark: '#6A5C93',
+  accent: '#D689A0',
+  accentDark: '#B3687F',
+
+  background: '#121418',
+  surface: '#1E222A',
+  surfaceElevated: '#282C37',
+
+  textPrimary: '#F0F2F5',
+  textSecondary: '#A0AAB8',
+  textLight: '#606875',
+  textOnPrimary: '#FFFFFF',
+
+  border: '#2C3240',
+  divider: '#252A36',
+
+  success: '#5BB98B',
+  warning: '#E6A15C',
+  error: '#E06C75',
+
+  mood1: '#F1C40F',
+  mood2: '#2ECC71',
+  mood3: '#3498DB',
+  mood4: '#9B59B6',
+  mood5: '#E74C3C',
+
+  tagBg: '#2A303C',
+  tagSelectedBg: '#887BB0',
+  tagText: '#C0C8D4',
+  tagSelectedText: '#FFFFFF',
+
+  shadow: '#000000',
+  statusBar: 'light',
+};
+
+/**
+ * ウォーム（アンバー・テラコッタ調）テーマ
+ */
+export const WarmThemeColors: ThemeColors = {
+  primary: '#F4A261',
+  primaryDark: '#E76F51',
+  secondary: '#E9C46A',
+  secondaryDark: '#D4A373',
+  accent: '#F28482',
+  accentDark: '#E56B6F',
+
+  background: '#FAF6F0',
+  surface: '#FFFFFF',
+  surfaceElevated: '#FFFDF9',
+
+  textPrimary: '#3D2C2E',
+  textSecondary: '#7A6567',
+  textLight: '#B8A6A8',
+  textOnPrimary: '#FFFFFF',
+
+  border: '#F0E6DD',
+  divider: '#F7EFE8',
+
+  success: '#81B29A',
+  warning: '#F4A261',
+  error: '#E07A5F',
+
+  mood1: '#E9C46A',
+  mood2: '#81B29A',
+  mood3: '#F4A261',
+  mood4: '#D4A373',
+  mood5: '#E07A5F',
+
+  tagBg: '#F5EBE6',
+  tagSelectedBg: '#E76F51',
+  tagText: '#665355',
+  tagSelectedText: '#FFFFFF',
+
+  shadow: '#3D2C2E',
+  statusBar: 'dark',
+};
+
+/**
+ * テーマ名に応じた ThemeColors を取得
+ */
+export const getThemeColors = (theme: ThemeType): ThemeColors => {
+  switch (theme) {
+    case 'dark':
+      return DarkThemeColors;
+    case 'warm':
+      return WarmThemeColors;
+    case 'light':
+    default:
+      return LightThemeColors;
+  }
+};
+
+/**
+ * 互換性のためのデフォルト Colors
+ */
+export const Colors = LightThemeColors;
+
 
 /**
  * フォントサイズ
