@@ -33,8 +33,24 @@ jobs:
       - name: TypeScript Type Check
         run: npm run type-check
 
-      - name: Unit & Logic Test (Jest)
-        run: npm test
+      - name: Unit & Logic Test with Coverage Check (Jest)
+        run: npm run test:coverage
+
+      - name: Output Coverage Summary to Job Summary
+        if: always()
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "### 📊 Code Coverage Summary (Target: >=90%)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            node -e '
+              const summary = require("./coverage/coverage-summary.json").total;
+              console.log(`Lines:      ${summary.lines.pct}% (${summary.lines.covered}/${summary.lines.total})`);
+              console.log(`Statements: ${summary.statements.pct}% (${summary.statements.covered}/${summary.statements.total})`);
+              console.log(`Functions:  ${summary.functions.pct}% (${summary.functions.covered}/${summary.functions.total})`);
+              console.log(`Branches:   ${summary.branches.pct}% (${summary.branches.covered}/${summary.branches.total})`);
+            ' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Security Vulnerability Audit
         run: npm audit --audit-level=high || true
