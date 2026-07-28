@@ -33,3 +33,11 @@ export interface ReminderSettings {
   minute: number;
 }
 
+/**
+ * 名言・偉人のセリフの型定義
+ */
+export interface Quote {
+  text: string;
+  author: string;
+  authorTitle?: string;
+}
