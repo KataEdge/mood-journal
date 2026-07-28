@@ -1,15 +1,27 @@
 {
   "expo": {
-    "name": "mood-journal",
+    "name": "感情日記",
     "slug": "mood-journal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E6F4FE"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.moodjournal.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "プロフィール画像や日記のメモに添付する画像を選択するために写真ライブラリにアクセスします。"
+      }
     },
     "android": {
+      "package": "com.moodjournal.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
