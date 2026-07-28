@@ -211,6 +211,58 @@ export default function SafetyScreen() {
           </View>
         </View>
 
+        {/* 継続をサポートする3つの仕組みガイド */}
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardIcon}>✨</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+              継続をサポートする3つの仕組み
+            </Text>
+          </View>
+          <Text style={[styles.cardBody, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
+            感情日記を楽しく無理なく続けるためのモチベーション機能のご案内です。
+          </Text>
+
+          {/* 1. ココロの木 */}
+          <View style={[styles.guideBox, { backgroundColor: `${colors.primary}12` }]}>
+            <Text style={styles.guideBoxEmoji}>🌱</Text>
+            <View style={styles.guideBoxContent}>
+              <Text style={[styles.guideBoxTitle, { color: colors.textPrimary }]}>
+                1. 成長する「ココロの木」
+              </Text>
+              <Text style={[styles.guideBoxText, { color: colors.textSecondary }]}>
+                感情の記録や呼吸法を行うと「水やり（XP）」が完了し、芽ばえ🌱からすこやか新緑🌿・満開の木🌸へとレベルアップ成長します。
+              </Text>
+            </View>
+          </View>
+
+          {/* 2. ストリークフリーズ */}
+          <View style={[styles.guideBox, { backgroundColor: '#E0F2FE' }]}>
+            <Text style={styles.guideBoxEmoji}>❄️</Text>
+            <View style={styles.guideBoxContent}>
+              <Text style={[styles.guideBoxTitle, { color: colors.textPrimary }]}>
+                2. ストリークフリーズ（1日救済）
+              </Text>
+              <Text style={[styles.guideBoxText, { color: colors.textSecondary }]}>
+                うっかり1日記録を忘れても、週1回自動補充されるフリーズチケット（1日救済）が働き、連続記録が途切れるのを防ぎます。
+              </Text>
+            </View>
+          </View>
+
+          {/* 3. 週次感情レポート */}
+          <View style={[styles.guideBox, { backgroundColor: `${colors.secondary}15` }]}>
+            <Text style={styles.guideBoxEmoji}>📊</Text>
+            <View style={styles.guideBoxContent}>
+              <Text style={[styles.guideBoxTitle, { color: colors.textPrimary }]}>
+                3. 週末感情レポート
+              </Text>
+              <Text style={[styles.guideBoxText, { color: colors.textSecondary }]}>
+                週末（土・日）になるとホーム画面にレポートが届き、1週間の記録日数・感情バランス・よく使ったタグを振り返ることができます。
+              </Text>
+            </View>
+          </View>
+        </View>
+
         {/* 免責事項 */}
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Text style={styles.cardIcon}>📋</Text>
@@ -519,6 +571,30 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     textAlign: 'center',
     marginTop: Spacing.lg,
+  },
+  guideBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+  },
+  guideBoxEmoji: {
+    fontSize: 24,
+    marginRight: Spacing.md,
+    marginTop: 2,
+  },
+  guideBoxContent: {
+    flex: 1,
+  },
+  guideBoxTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  guideBoxText: {
+    fontSize: FontSize.xs + 1,
+    lineHeight: 18,
   },
 });
 
