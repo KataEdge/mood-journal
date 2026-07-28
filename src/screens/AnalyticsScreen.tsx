@@ -12,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { MoodEntry, TimeRange } from '../types';
 import { getMoodEntries } from '../utils/storage';
 import { calculateAnalyticsSummary } from '../utils/analytics';
+import { calculateHealthStats } from '../utils/stats';
 import { MoodChart } from '../components/MoodChart';
 import { MoodDistribution } from '../components/MoodDistribution';
 import { ThemeHeader } from '../components/ThemeHeader';
@@ -43,6 +44,7 @@ export default function AnalyticsScreen() {
   );
 
   const summary = calculateAnalyticsSummary(entries, timeRange);
+  const healthStats = calculateHealthStats(entries);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -129,6 +131,42 @@ export default function AnalyticsScreen() {
               distribution={summary.distribution}
               totalCount={summary.totalCount}
             />
+
+            {/* ヘルスケア分析・インサイト */}
+            {healthStats.hasDataCount > 0 && (
+              <View style={[styles.sectionCard, { backgroundColor: colors.surface }, Shadow.sm]}>
+                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>❤️ ヘルスケアと感情のインサイト</Text>
+                <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
+                  記録された {healthStats.hasDataCount} 件のヘルスケアデータに基づく相関
+                </Text>
+
+                <View style={styles.healthStatsGrid}>
+                  <View style={[styles.healthStatBox, { backgroundColor: colors.background }]}>
+                    <Text style={styles.statBoxIcon}>🌙</Text>
+                    <Text style={[styles.statBoxValue, { color: colors.textPrimary }]}>
+                      {healthStats.averageSleepHours ?? '-'} <Text style={styles.statBoxUnit}>h/日</Text>
+                    </Text>
+                    <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>平均睡眠時間</Text>
+                  </View>
+
+                  <View style={[styles.healthStatBox, { backgroundColor: colors.background }]}>
+                    <Text style={styles.statBoxIcon}>🏃</Text>
+                    <Text style={[styles.statBoxValue, { color: colors.textPrimary }]}>
+                      {healthStats.averageWorkoutMinutes ?? '-'} <Text style={styles.statBoxUnit}>分/日</Text>
+                    </Text>
+                    <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>平均運動時間</Text>
+                  </View>
+                </View>
+
+                {healthStats.goodMoodSleepHours !== null && (
+                  <View style={[styles.insightNotice, { backgroundColor: colors.primary + '15' }]}>
+                    <Text style={[styles.insightNoticeText, { color: colors.textPrimary }]}>
+                      💡 気分が「とても良い・良い」日の平均睡眠時間は <Text style={{ fontWeight: '700' }}>{healthStats.goodMoodSleepHours} 時間</Text> でした。
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
 
             {/* 要因（タグ）別分析 */}
             {summary.tagAnalytics && summary.tagAnalytics.length > 0 ? (
@@ -291,6 +329,42 @@ const styles = StyleSheet.create({
   tagMoodText: {
     fontSize: FontSize.xs,
     fontWeight: '600',
+  },
+  healthStatsGrid: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginVertical: Spacing.sm,
+  },
+  healthStatBox: {
+    flex: 1,
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+  },
+  statBoxIcon: {
+    fontSize: FontSize.lg,
+    marginBottom: 2,
+  },
+  statBoxValue: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+  },
+  statBoxUnit: {
+    fontSize: FontSize.xs,
+    fontWeight: 'normal',
+  },
+  statBoxLabel: {
+    fontSize: FontSize.xs,
+    marginTop: 2,
+  },
+  insightNotice: {
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    marginTop: Spacing.xs,
+  },
+  insightNoticeText: {
+    fontSize: FontSize.xs,
+    lineHeight: 18,
   },
 });
 

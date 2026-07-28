@@ -115,3 +115,52 @@ export function calculateStats(entries: MoodEntry[], days: number = 7): StatsDat
     distribution,
   };
 }
+
+export interface HealthStats {
+  hasDataCount: number;
+  averageSleepHours: number | null;
+  averageWorkoutMinutes: number | null;
+  totalActiveCalories: number;
+  goodMoodSleepHours: number | null;
+}
+
+/**
+ * 過去のエントリからヘルスケアデータの統計サマリーを計算する
+ */
+export function calculateHealthStats(entries: MoodEntry[]): HealthStats {
+  const entriesWithHealth = entries.filter((e) => e.healthData);
+  const hasDataCount = entriesWithHealth.length;
+
+  if (hasDataCount === 0) {
+    return {
+      hasDataCount: 0,
+      averageSleepHours: null,
+      averageWorkoutMinutes: null,
+      totalActiveCalories: 0,
+      goodMoodSleepHours: null,
+    };
+  }
+
+  const totalSleep = entriesWithHealth.reduce((sum, e) => sum + (e.healthData?.sleepHours || 0), 0);
+  const totalWorkout = entriesWithHealth.reduce((sum, e) => sum + (e.healthData?.workoutMinutes || 0), 0);
+  const totalCalories = entriesWithHealth.reduce((sum, e) => sum + (e.healthData?.activeCalories || 0), 0);
+
+  const averageSleepHours = Math.round((totalSleep / hasDataCount) * 10) / 10;
+  const averageWorkoutMinutes = Math.round(totalWorkout / hasDataCount);
+
+  // 気分が良い時（MoodLevel 1 または 2）の平均睡眠時間
+  const goodMoodEntries = entriesWithHealth.filter((e) => e.mood === 1 || e.mood === 2);
+  let goodMoodSleepHours: number | null = null;
+  if (goodMoodEntries.length > 0) {
+    const goodMoodSleepSum = goodMoodEntries.reduce((sum, e) => sum + (e.healthData?.sleepHours || 0), 0);
+    goodMoodSleepHours = Math.round((goodMoodSleepSum / goodMoodEntries.length) * 10) / 10;
+  }
+
+  return {
+    hasDataCount,
+    averageSleepHours,
+    averageWorkoutMinutes,
+    totalActiveCalories: totalCalories,
+    goodMoodSleepHours,
+  };
+}

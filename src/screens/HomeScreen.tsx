@@ -17,9 +17,15 @@ import MoodSelector from '../components/MoodSelector';
 import SafetyModal from '../components/SafetyModal';
 import { TagSelector } from '../components/TagSelector';
 import { ThemeHeader } from '../components/ThemeHeader';
-import { MoodOption, MoodLevel, Quote } from '../types';
+import { HealthCard } from '../components/HealthCard';
+import { MoodOption, MoodLevel, Quote, HealthData } from '../types';
 import { saveMoodEntry, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
+import {
+  fetchTodayHealthData,
+  getHealthSyncPreference,
+  setHealthSyncPreference,
+} from '../utils/health';
 import {
   FontSize,
   Spacing,
@@ -36,6 +42,11 @@ export default function HomeScreen() {
   const [quote, setQuote] = useState<Quote>(getRandomQuote());
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // ヘルスケア連携ステート
+  const [healthEnabled, setHealthEnabled] = useState(true);
+  const [healthData, setHealthData] = useState<HealthData | null>(null);
+  const [healthLoading, setHealthLoading] = useState(false);
 
   // アニメーション値
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
@@ -60,14 +71,40 @@ export default function HomeScreen() {
 
     // 初回起動チェック
     checkFirstLaunch();
+    // ヘルスケア連携設定とデータの読み込み
+    initHealthSync();
   }, []);
 
-  // 画面にフォーカスが戻るたびにメッセージを更新
+  // 画面にフォーカスが戻るたびにメッセージとヘルスケアデータを更新
   useFocusEffect(
     useCallback(() => {
       refreshQuote();
+      loadHealthData();
     }, [])
   );
+
+  const initHealthSync = async () => {
+    const enabled = await getHealthSyncPreference();
+    setHealthEnabled(enabled);
+    if (enabled) {
+      loadHealthData();
+    }
+  };
+
+  const loadHealthData = async () => {
+    setHealthLoading(true);
+    const data = await fetchTodayHealthData();
+    setHealthData(data);
+    setHealthLoading(false);
+  };
+
+  const handleToggleHealthSync = async (value: boolean) => {
+    setHealthEnabled(value);
+    await setHealthSyncPreference(value);
+    if (value) {
+      loadHealthData();
+    }
+  };
 
   const checkFirstLaunch = async () => {
     const first = await isFirstLaunch();
@@ -120,6 +157,7 @@ export default function HomeScreen() {
       note: note.trim(),
       timestamp: new Date().toISOString(),
       tags: selectedTags,
+      ...(healthEnabled && healthData ? { healthData } : {}),
     };
 
     await saveMoodEntry(entry);
@@ -204,6 +242,16 @@ export default function HomeScreen() {
             <TagSelector
               selectedTags={selectedTags}
               onToggleTag={handleToggleTag}
+            />
+
+            {/* ヘルスケア連携カード */}
+            <HealthCard
+              colors={colors}
+              enabled={healthEnabled}
+              onToggleEnabled={handleToggleHealthSync}
+              healthData={healthData}
+              loading={healthLoading}
+              onRefresh={loadHealthData}
             />
 
             {/* メモ入力 */}

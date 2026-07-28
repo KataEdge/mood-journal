@@ -11,6 +11,16 @@ export type ThemeType = 'light' | 'dark' | 'warm';
 
 
 /**
+ * ヘルスケア（HealthKit）連携データ
+ */
+export interface HealthData {
+  sleepHours: number;       // 睡眠時間 (例: 7.5)
+  workoutMinutes: number;   // 運動時間 (例: 45)
+  activeCalories: number;   // アクティブエネルギー (例: 250)
+  syncedAt: string;         // 同期日時 (ISO 8601)
+}
+
+/**
  * 気分の記録エントリ
  */
 export interface MoodEntry {
@@ -19,6 +29,7 @@ export interface MoodEntry {
   note: string;
   timestamp: string; // ISO 8601
   tags?: string[];
+  healthData?: HealthData;
 }
 
 /**

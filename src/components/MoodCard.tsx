@@ -65,6 +65,20 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
             ))}
           </View>
         ) : null}
+        {entry.healthData ? (
+          <View style={styles.healthContainer}>
+            <View style={[styles.healthBadge, { backgroundColor: colors.primary + '25' }]}>
+              <Text style={[styles.healthBadgeText, { color: colors.textPrimary }]}>
+                🌙 {entry.healthData.sleepHours}時間
+              </Text>
+            </View>
+            <View style={[styles.healthBadge, { backgroundColor: colors.secondary + '25' }]}>
+              <Text style={[styles.healthBadgeText, { color: colors.textPrimary }]}>
+                🏃 {entry.healthData.workoutMinutes}分 ({entry.healthData.activeCalories}kcal)
+              </Text>
+            </View>
+          </View>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -125,6 +139,21 @@ const styles = StyleSheet.create({
   tagBadgeText: {
     fontSize: FontSize.xs,
     fontWeight: '500',
+  },
+  healthContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginTop: Spacing.xs,
+  },
+  healthBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.sm,
+  },
+  healthBadgeText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
   },
 });
 
