@@ -1,69 +1,53 @@
 ---
 name: merge-to-main
-description: 現在の作業・新機能変更を型チェックで検証し、コミット・Pushしてmainブランチへ安全にマージする定型自動フロー
+description: 現在の作業・変更を型チェックで検証し、コミット・Pushしてmainブランチ宛てのPull Request (PR) を作成する定型自動フロー
 ---
 
-# 🔀 mainブランチへのマージ自動化スキル (Merge to Main Automation)
+# 🔀 main向け Pull Request 作成自動化スキル (Create PR for Main Automation)
 
-このスキルは、作業中・開発済みの変更を `npm run check` による品質検証の上でコミットし、`main` ブランチへ安全かつ確実にマージするための定型フローです。
+このスキルは、作業中・開発済みの変更を `npm run check` による品質検証の上でコミットし、`main` ブランチ宛ての Pull Request (PR) を作成・公開するための定型フローです。
 
 ---
 
 ## 📋 実行ステップ
 
 ### Step 1. ローカル型・品質検証
-コミット・マージ前に必ず型チェックを実行し、エラーが 0 件であることを確認します。
+コミット・PR作成前に必ず型チェックを実行し、エラーが 0 件であることを確認します。
 
 ```bash
 npm run check
 ```
 
-### Step 2. 変更のコミット
-Conventional Commits スタイルに従い、現在の作業内容をコミットします。
+### Step 2. 作業ブランチの確認・準備
+現在 `main` ブランチにいる場合は、適切なトピックブランチを作成して切り替えます。すでにトピックブランチで作業している場合はそのブランチのまま進行します。
+
+```bash
+# 現在 main にいる場合
+git checkout -b feature/<short-feature-description>
+```
+
+### Step 3. 変更のコミット & Push
+Conventional Commits スタイルに従い変更をコミットし、リモートへ Push します。
 
 ```bash
 git add .
 git commit -m "feat: <機能追加・変更の簡潔な概要>"
+git push -u origin <topic-branch-name>
 ```
 
-### Step 3. main ブランチへのマージ
+### Step 4. Pull Request (PR) の作成
+GitHub CLI (`gh`) を使用して `main` ブランチに対する PR を作成します。
 
-#### パターン A: 現在のブランチが `main` の場合
-変更をコミット後、リモートへ Push します。
 ```bash
-git push origin main
+gh pr create --title "feat: <タイトル>" --body "## 概要\n- 変更内容の要約\n\n## 検証\n- npm run check 実行済み"
 ```
 
-#### パターン B: トピックブランチ（例: `feat/...`）で作業中の場合
-1. `main` ブランチへ切り替えて最新化します。
-   ```bash
-   git checkout main
-   git pull origin main
-   ```
-2. 作業ブランチを `main` へマージします。
-   ```bash
-   git merge <topic-branch-name>
-   ```
-3. リモート `main` へ Push し、作業ブランチを削除します。
-   ```bash
-   git push origin main
-   git branch -d <topic-branch-name>
-   ```
+※ GitHub CLI が未認証または未設定の場合は、Push 時に出力される Web 上の PR 作成 URL をユーザーへ提示します。
 
-#### パターン C: GitHub CLI (`gh`) を使用した PR 経由でのマージ
-1. トピックブランチを Push して PR を作成します。
-   ```bash
-   git push -u origin <topic-branch-name>
-   gh pr create --title "feat: <タイトル>" --body "## 概要\n- 変更内容\n\n## 検証\n- npm run check 成功"
-   ```
-2. PR をマージします。
-   ```bash
-   gh pr merge --squash --delete-branch
-   ```
-
-### Step 4. 完了状態の確認
-ステータスおよびログを確認し、作業が正常に完了したことを確かめます。
+### Step 5. 完了状態の確認・URL共有
+生成された PR の URL およびリポジトリのステータスを確認し、ユーザーへ報告します。
 
 ```bash
 git status
 ```
+
