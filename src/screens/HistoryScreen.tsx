@@ -9,9 +9,10 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MoodCard from '../components/MoodCard';
+import EditMoodModal from '../components/EditMoodModal';
 import { ThemeHeader } from '../components/ThemeHeader';
 import { MoodEntry } from '../types';
-import { getMoodEntries, deleteMoodEntry } from '../utils/storage';
+import { getMoodEntries, deleteMoodEntry, saveMoodEntry } from '../utils/storage';
 import {
   FontSize,
   Spacing,
@@ -27,6 +28,7 @@ export default function HistoryScreen() {
   const { colors } = useTheme();
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingEntry, setEditingEntry] = useState<MoodEntry | null>(null);
 
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
@@ -73,6 +75,16 @@ export default function HistoryScreen() {
     await loadEntries();
   };
 
+  const handleEdit = (entry: MoodEntry) => {
+    setEditingEntry(entry);
+  };
+
+  const handleSaveEdit = async (updatedEntry: MoodEntry) => {
+    await saveMoodEntry(updatedEntry);
+    setEditingEntry(null);
+    await loadEntries();
+  };
+
   const renderSectionHeader = ({ section }: { section: Section }) => {
     const moodEmojis: Record<number, string> = {
       1: '😄', 2: '🙂', 3: '😐', 4: '😔', 5: '😢',
@@ -88,7 +100,7 @@ export default function HistoryScreen() {
   };
 
   const renderItem = ({ item }: { item: MoodEntry }) => (
-    <MoodCard entry={item} onDelete={handleDelete} />
+    <MoodCard entry={item} onDelete={handleDelete} onEdit={handleEdit} />
   );
 
   const renderEmpty = () => {
@@ -130,9 +142,17 @@ export default function HistoryScreen() {
 
       {totalEntries > 0 && (
         <View style={[styles.hintContainer, { borderTopColor: colors.divider }]}>
-          <Text style={[styles.hintText, { color: colors.textLight }]}>💡 長押しで記録を削除できます</Text>
+          <Text style={[styles.hintText, { color: colors.textLight }]}>💡 編集アイコンまたは長押しで記録の編集・削除ができます</Text>
         </View>
       )}
+
+      {/* 編集モーダル */}
+      <EditMoodModal
+        visible={!!editingEntry}
+        entry={editingEntry}
+        onClose={() => setEditingEntry(null)}
+        onSave={handleSaveEdit}
+      />
     </SafeAreaView>
   );
 }

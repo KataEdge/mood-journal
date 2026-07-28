@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { MoodEntry } from '../types';
 import { MOOD_OPTIONS, FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
@@ -7,9 +8,10 @@ import { useTheme } from '../context/ThemeContext';
 interface MoodCardProps {
   entry: MoodEntry;
   onDelete: (id: string) => void;
+  onEdit: (entry: MoodEntry) => void;
 }
 
-export default function MoodCard({ entry, onDelete }: MoodCardProps) {
+export default function MoodCard({ entry, onDelete, onEdit }: MoodCardProps) {
   const { colors } = useTheme();
 
   const moodColorKey = `mood${entry.mood}` as 'mood1' | 'mood2' | 'mood3' | 'mood4' | 'mood5';
@@ -22,7 +24,7 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
     minute: '2-digit',
   });
 
-  const handleLongPress = () => {
+  const confirmDelete = () => {
     Alert.alert(
       '記録を削除',
       'この記録を削除しますか？',
@@ -32,6 +34,25 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
           text: '削除',
           style: 'destructive',
           onPress: () => onDelete(entry.id),
+        },
+      ]
+    );
+  };
+
+  const handleLongPress = () => {
+    Alert.alert(
+      '記録の操作',
+      '選択した記録に対する操作を選んでください',
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '編集',
+          onPress: () => onEdit(entry),
+        },
+        {
+          text: '削除',
+          style: 'destructive',
+          onPress: confirmDelete,
         },
       ]
     );
@@ -52,6 +73,13 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
             <Text style={[styles.moodLabel, { color: colors.textPrimary }]}>{moodOption?.label || '記録'}</Text>
             <Text style={[styles.time, { color: colors.textSecondary }]}>{timeString}</Text>
           </View>
+          <TouchableOpacity
+            onPress={() => onEdit(entry)}
+            style={styles.editButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
         </View>
         {entry.note ? (
           <Text style={[styles.note, { color: colors.textSecondary, borderTopColor: colors.divider }]}>{entry.note}</Text>
@@ -118,6 +146,10 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
+  },
+  editButton: {
+    padding: Spacing.xs,
+    marginLeft: Spacing.xs,
   },
   moodLabel: {
     fontSize: FontSize.md,
