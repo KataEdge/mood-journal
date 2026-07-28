@@ -33,6 +33,9 @@ jobs:
       - name: TypeScript Type Check
         run: npm run type-check
 
+      - name: Unit & Logic Test (Jest)
+        run: npm test
+
       - name: Security Vulnerability Audit
         run: npm audit --audit-level=high || true
 
