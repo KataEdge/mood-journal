@@ -108,6 +108,13 @@ export default function MoodCard({ entry, onDelete, onEdit }: MoodCardProps) {
                 🏃 {entry.healthData.workoutMinutes}分 ({entry.healthData.activeCalories}kcal)
               </Text>
             </View>
+            {entry.healthData.stepCount !== undefined && entry.healthData.stepCount > 0 && (
+              <View style={[styles.healthBadge, { backgroundColor: colors.primary + '15' }]}>
+                <Text style={[styles.healthBadgeText, { color: colors.textPrimary }]}>
+                  👟 {entry.healthData.stepCount.toLocaleString()}歩
+                </Text>
+              </View>
+            )}
           </View>
         ) : null}
       </View>

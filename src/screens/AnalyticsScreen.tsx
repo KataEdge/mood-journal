@@ -168,6 +168,19 @@ export default function AnalyticsScreen() {
                       平均運動時間
                     </Text>
                   </View>
+
+                  <View style={[styles.healthStatBox, { backgroundColor: colors.background }]}>
+                    <Text style={styles.statBoxIcon}>👟</Text>
+                    <Text style={[styles.statBoxValue, { color: colors.textPrimary }]}>
+                      {healthStats.averageStepCount !== null
+                        ? healthStats.averageStepCount.toLocaleString()
+                        : '-'}{' '}
+                      <Text style={styles.statBoxUnit}>歩/日</Text>
+                    </Text>
+                    <Text style={[styles.statBoxLabel, { color: colors.textSecondary }]}>
+                      平均歩数
+                    </Text>
+                  </View>
                 </View>
 
                 {healthStats.goodMoodSleepHours !== null && (

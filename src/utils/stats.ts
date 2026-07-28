@@ -120,6 +120,7 @@ export interface HealthStats {
   averageSleepHours: number | null;
   averageWorkoutMinutes: number | null;
   totalActiveCalories: number;
+  averageStepCount: number | null;
   goodMoodSleepHours: number | null;
 }
 
@@ -136,6 +137,7 @@ export function calculateHealthStats(entries: MoodEntry[]): HealthStats {
       averageSleepHours: null,
       averageWorkoutMinutes: null,
       totalActiveCalories: 0,
+      averageStepCount: null,
       goodMoodSleepHours: null,
     };
   }
@@ -149,9 +151,11 @@ export function calculateHealthStats(entries: MoodEntry[]): HealthStats {
     (sum, e) => sum + (e.healthData?.activeCalories || 0),
     0
   );
+  const totalSteps = entriesWithHealth.reduce((sum, e) => sum + (e.healthData?.stepCount || 0), 0);
 
   const averageSleepHours = Math.round((totalSleep / hasDataCount) * 10) / 10;
   const averageWorkoutMinutes = Math.round(totalWorkout / hasDataCount);
+  const averageStepCount = Math.round(totalSteps / hasDataCount);
 
   // 気分が良い時（MoodLevel 5 または 4）の平均睡眠時間
   const goodMoodEntries = entriesWithHealth.filter((e) => e.mood === 5 || e.mood === 4);
@@ -169,6 +173,7 @@ export function calculateHealthStats(entries: MoodEntry[]): HealthStats {
     averageSleepHours,
     averageWorkoutMinutes,
     totalActiveCalories: totalCalories,
+    averageStepCount,
     goodMoodSleepHours,
   };
 }

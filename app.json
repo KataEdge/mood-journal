@@ -15,8 +15,14 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.moodjournal.app",
       "buildNumber": "1",
+      "entitlements": {
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.access": ["health-records"]
+      },
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "プロフィール画像や日記のメモに添付する画像を選択するために写真ライブラリにアクセスします。",
+        "NSHealthShareUsageDescription": "睡眠・運動・歩数データを取得して感情と健康の関連を分析します。",
+        "NSHealthUpdateUsageDescription": "このアプリはヘルスケアデータの書き込みは行いません。",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -39,6 +45,7 @@
         "projectId": "7a21c237-66e5-4d22-9b8c-955616cdce6e"
       }
     },
+    "plugins": ["react-native-health"],
     "owner": "mickey333s-team"
   }
 }

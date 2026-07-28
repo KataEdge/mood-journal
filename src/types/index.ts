@@ -16,6 +16,7 @@ export interface HealthData {
   sleepHours: number; // 睡眠時間 (例: 7.5)
   workoutMinutes: number; // 運動時間 (例: 45)
   activeCalories: number; // アクティブエネルギー (例: 250)
+  stepCount: number; // 歩数 (例: 8500)
   syncedAt: string; // 同期日時 (ISO 8601)
 }
 

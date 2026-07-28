@@ -11,6 +11,7 @@ import {
   Platform,
   Keyboard,
   Alert,
+  Linking,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -64,6 +65,8 @@ import {
   fetchTodayHealthData,
   getHealthSyncPreference,
   setHealthSyncPreference,
+  requestHealthPermissions,
+  isHealthKitSupported,
 } from '../utils/health';
 import { FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
@@ -101,9 +104,10 @@ export default function HomeScreen() {
   const [showWeeklyReportModal, setShowWeeklyReportModal] = useState(false);
 
   // ヘルスケア連携ステート
-  const [healthEnabled, setHealthEnabled] = useState(true);
+  const [healthEnabled, setHealthEnabled] = useState(false);
   const [healthData, setHealthData] = useState<HealthData | null>(null);
   const [healthLoading, setHealthLoading] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   // アニメーション値
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
@@ -181,17 +185,33 @@ export default function HomeScreen() {
 
   const loadHealthData = async () => {
     setHealthLoading(true);
-    const data = await fetchTodayHealthData();
-    setHealthData(data);
+    const result = await fetchTodayHealthData();
+    setHealthData(result.data);
     setHealthLoading(false);
   };
 
   const handleToggleHealthSync = async (value: boolean) => {
+    if (value && isHealthKitSupported()) {
+      // 連携ON時に権限をリクエスト
+      const granted = await requestHealthPermissions();
+      if (!granted) {
+        setPermissionDenied(true);
+        setHealthEnabled(true);
+        await setHealthSyncPreference(true);
+        return;
+      }
+    }
+
+    setPermissionDenied(false);
     setHealthEnabled(value);
     await setHealthSyncPreference(value);
     if (value) {
       loadHealthData();
     }
+  };
+
+  const handleOpenSettings = () => {
+    Linking.openSettings();
   };
 
   const handleSafetyClose = async () => {
@@ -474,7 +494,9 @@ export default function HomeScreen() {
               onToggleEnabled={handleToggleHealthSync}
               healthData={healthData}
               loading={healthLoading}
+              permissionDenied={permissionDenied}
               onRefresh={loadHealthData}
+              onOpenSettings={handleOpenSettings}
             />
 
             {/* メモ入力 */}

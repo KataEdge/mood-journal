@@ -9,7 +9,9 @@ interface HealthCardProps {
   onToggleEnabled: (value: boolean) => void;
   healthData: HealthData | null;
   loading: boolean;
+  permissionDenied?: boolean;
   onRefresh: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const HealthCard: React.FC<HealthCardProps> = ({
@@ -18,7 +20,9 @@ export const HealthCard: React.FC<HealthCardProps> = ({
   onToggleEnabled,
   healthData,
   loading,
+  permissionDenied = false,
   onRefresh,
+  onOpenSettings,
 }) => {
   return (
     <View
@@ -37,7 +41,7 @@ export const HealthCard: React.FC<HealthCardProps> = ({
           <View>
             <Text style={[styles.title, { color: colors.textPrimary }]}>ヘルスケア連携</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {enabled ? '本日の睡眠・運動データを自動取得中' : 'ヘルスケア自動連携はOFFです'}
+              {enabled ? '前日の睡眠・運動・歩数を自動取得中' : 'ヘルスケア自動連携はOFFです'}
             </Text>
           </View>
         </View>
@@ -59,6 +63,23 @@ export const HealthCard: React.FC<HealthCardProps> = ({
                 データ同期中...
               </Text>
             </View>
+          ) : permissionDenied ? (
+            <View style={styles.deniedContainer}>
+              <Text style={[styles.deniedText, { color: colors.textSecondary }]}>
+                ヘルスケアへのアクセス権限が必要です。iOSの設定画面からアクセスを許可してください。
+              </Text>
+              {onOpenSettings && (
+                <TouchableOpacity
+                  style={[styles.settingsButton, { backgroundColor: colors.primary }]}
+                  onPress={onOpenSettings}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.settingsButtonText, { color: '#FFFFFF' }]}>
+                    ⚙️ iOS設定を開く
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           ) : healthData ? (
             <View style={styles.dataGrid}>
               {/* 睡眠カード */}
@@ -73,7 +94,7 @@ export const HealthCard: React.FC<HealthCardProps> = ({
                 </Text>
               </View>
 
-              {/* 運動カード */}
+              {/* 運動・アクティブカロリーカード */}
               <View style={[styles.dataItem, { backgroundColor: colors.background }]}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemIcon}>🏃</Text>
@@ -89,14 +110,26 @@ export const HealthCard: React.FC<HealthCardProps> = ({
                   </Text>
                 </Text>
               </View>
+
+              {/* 歩数カード */}
+              <View style={[styles.dataItem, { backgroundColor: colors.background }]}>
+                <View style={styles.itemHeader}>
+                  <Text style={styles.itemIcon}>👟</Text>
+                  <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>歩数</Text>
+                </View>
+                <Text style={[styles.itemValue, { color: colors.textPrimary }]}>
+                  {healthData.stepCount.toLocaleString()}
+                  <Text style={styles.unitText}> 歩</Text>
+                </Text>
+              </View>
             </View>
           ) : (
-            <Text style={[styles.emptyText, { color: colors.textLight }]}>
-              データが取得できませんでした
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              昨日のヘルスケアデータが見つかりませんでした
             </Text>
           )}
 
-          {enabled && !loading && (
+          {enabled && !loading && !permissionDenied && (
             <TouchableOpacity style={styles.refreshButton} onPress={onRefresh} activeOpacity={0.7}>
               <Text style={[styles.refreshText, { color: colors.primaryDark }]}>🔄 再読み込み</Text>
             </TouchableOpacity>
@@ -150,20 +183,41 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: FontSize.sm,
   },
+  deniedContainer: {
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  deniedText: {
+    fontSize: FontSize.xs,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: Spacing.sm,
+  },
+  settingsButton: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: BorderRadius.md,
+  },
+  settingsButtonText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+  },
   dataGrid: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
+    flexDirection: 'column',
+    gap: Spacing.xs,
   },
   dataItem: {
-    flex: 1,
-    padding: Spacing.sm,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.xs + 2,
+    paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.md,
   },
   itemHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 4,
+    gap: 6,
   },
   itemIcon: {
     fontSize: FontSize.sm,
@@ -172,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
   },
   itemValue: {
-    fontSize: FontSize.md,
+    fontSize: FontSize.sm,
     fontWeight: '700',
   },
   unitText: {
