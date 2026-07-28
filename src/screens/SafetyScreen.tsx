@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,8 +6,19 @@ import {
   ScrollView,
   Linking,
   TouchableOpacity,
+  Switch,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import BreathingGuideModal from '../components/BreathingGuideModal';
+import TimePickerModal from '../components/TimePickerModal';
+import {
+  getReminderSettings,
+  saveReminderSettings,
+  requestNotificationPermission,
+} from '../utils/notifications';
+import { ReminderSettings } from '../types';
 import {
   Colors,
   FontSize,
@@ -17,11 +28,66 @@ import {
 } from '../constants/theme';
 
 export default function SafetyScreen() {
+  const [showBreathingModal, setShowBreathingModal] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [reminder, setReminder] = useState<ReminderSettings>({
+    enabled: false,
+    hour: 21,
+    minute: 0,
+  });
+
+  useEffect(() => {
+    loadReminder();
+  }, []);
+
+  const loadReminder = async () => {
+    const settings = await getReminderSettings();
+    setReminder(settings);
+  };
+
+  const handleToggleReminder = async (value: boolean) => {
+    if (value) {
+      const granted = await requestNotificationPermission();
+      if (!granted) {
+        Alert.alert(
+          '通知が許可されていません',
+          '設定アプリから感情日記の通知を許可してください。'
+        );
+        return;
+      }
+    }
+
+    const updated = { ...reminder, enabled: value };
+    setReminder(updated);
+    const success = await saveReminderSettings(updated);
+
+    if (value && success) {
+      const timeStr = `${updated.hour.toString().padStart(2, '0')}:${updated.minute.toString().padStart(2, '0')}`;
+      Alert.alert('リマインダーを設定しました', `毎日 ${timeStr} にお届けします 🔔`);
+    }
+  };
+
+  const handleSaveTime = async (hour: number, minute: number) => {
+    const updated = { ...reminder, hour, minute };
+    setReminder(updated);
+    if (reminder.enabled) {
+      const success = await saveReminderSettings(updated);
+      if (success) {
+        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        Alert.alert('通知時刻を変更しました', `毎日 ${timeStr} に変更されました 🔔`);
+      }
+    } else {
+      await saveReminderSettings(updated);
+    }
+  };
+
   const handleCall = (number: string) => {
     Linking.openURL(`tel:${number}`).catch(() => {
       // 電話アプリがない場合は無視
     });
   };
+
+  const formattedTime = `${reminder.hour.toString().padStart(2, '0')}:${reminder.minute.toString().padStart(2, '0')}`;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -30,7 +96,59 @@ export default function SafetyScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>ご利用について 🌿</Text>
+          <Text style={styles.headerTitle}>ご利用・セルフケア 🌿</Text>
+        </View>
+
+        {/* 呼吸法セルフケアカード */}
+        <View style={[styles.card, styles.breathingCard]}>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardIcon}>🍃</Text>
+            <Text style={styles.cardTitle}>4-7-8 呼吸法ガイド</Text>
+          </View>
+          <Text style={styles.cardBody}>
+            気分が落ち着かないときや就寝前に。4秒吸って7秒止め、8秒かけてゆっくり吐く深呼吸（3セット）でリラックスを促します。
+          </Text>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => setShowBreathingModal(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="leaf-outline" size={20} color={Colors.textPrimary} style={styles.actionBtnIcon} />
+            <Text style={styles.actionButtonText}>呼吸ガイドを始める (3セット)</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* リマインダー通知設定カード */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardIcon}>🔔</Text>
+            <Text style={styles.cardTitle}>毎日の記録リマインダー</Text>
+          </View>
+          <Text style={styles.cardBody}>
+            1日の終わりに気持ちを振り返る時間を。お好みの時刻にやさしいリマインダーをお届けします。
+          </Text>
+
+          <View style={styles.settingRow}>
+            <View style={styles.timeInfo}>
+              <Text style={styles.settingLabel}>毎日の通知</Text>
+              <TouchableOpacity
+                style={styles.timePickerButton}
+                onPress={() => setShowTimePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="time-outline" size={16} color={Colors.primaryDark} style={{ marginRight: 4 }} />
+                <Text style={styles.timePickerButtonText}>{formattedTime}</Text>
+                <Text style={styles.timePickerHint}> (変更)</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Switch
+              value={reminder.enabled}
+              onValueChange={handleToggleReminder}
+              trackColor={{ false: Colors.border, true: Colors.primary }}
+              thumbColor={reminder.enabled ? Colors.primaryDark : '#f4f3f4'}
+            />
+          </View>
         </View>
 
         {/* 免責事項 */}
@@ -98,8 +216,23 @@ export default function SafetyScreen() {
           </View>
         </View>
 
-        <Text style={styles.version}>感情日記 v1.0.0</Text>
+        <Text style={styles.version}>感情日記 v1.1.0</Text>
       </ScrollView>
+
+      {/* 呼吸法ガイドモーダル */}
+      <BreathingGuideModal
+        visible={showBreathingModal}
+        onClose={() => setShowBreathingModal(false)}
+      />
+
+      {/* 時刻選択モーダル */}
+      <TimePickerModal
+        visible={showTimePicker}
+        initialHour={reminder.hour}
+        initialMinute={reminder.minute}
+        onClose={() => setShowTimePicker(false)}
+        onSave={handleSaveTime}
+      />
     </SafeAreaView>
   );
 }
@@ -167,6 +300,65 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     ...Shadow.sm,
   },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xs,
+  },
+  breathingCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primaryDark,
+    backgroundColor: '#F3F9FE',
+  },
+  actionButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.full,
+    paddingVertical: Spacing.sm + 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.md,
+    ...Shadow.sm,
+  },
+  actionBtnIcon: {
+    marginRight: Spacing.xs,
+  },
+  actionButtonText: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: Spacing.md,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.divider,
+  },
+  settingLabel: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  timeInfo: {
+    flex: 1,
+  },
+  timePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  timePickerButtonText: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.primaryDark,
+  },
+  timePickerHint: {
+    fontSize: FontSize.xs,
+    color: Colors.textLight,
+  },
   warningCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#FFD93D',
@@ -178,14 +370,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FFF9',
   },
   cardIcon: {
-    fontSize: 32,
-    marginBottom: Spacing.sm,
+    fontSize: 28,
+    marginRight: Spacing.sm,
   },
   cardTitle: {
     fontSize: FontSize.lg,
     fontWeight: '700',
     color: Colors.textPrimary,
-    marginBottom: Spacing.sm,
   },
   cardSubtitle: {
     fontSize: FontSize.sm,
@@ -259,3 +450,4 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
   },
 });
+

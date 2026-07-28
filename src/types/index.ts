@@ -23,3 +23,13 @@ export interface MoodOption {
   label: string;
   color: string;
 }
+
+/**
+ * リマインダー通知の設定
+ */
+export interface ReminderSettings {
+  enabled: boolean;
+  hour: number;
+  minute: number;
+}
+
