@@ -1,0 +1,14 @@
+#!/bin/sh
+# main ブランチへの直接コミットを阻止する Git Pre-commit フック
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+  echo ""
+  echo "❌ Error: Direct commit to '$branch' branch is forbidden by project rules!"
+  echo "👉 Please create a topic branch first:"
+  echo "   git checkout -b feature/<feature-name>  (for new features)"
+  echo "   git checkout -b fix/<fix-name>          (for bug fixes)"
+  echo ""
+  exit 1
+fi
