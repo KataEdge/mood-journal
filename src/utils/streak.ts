@@ -1,7 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MoodEntry, StreakInfo, AchievementBadge } from '../types';
+import { MoodEntry, StreakInfo, AchievementBadge, MindTreeInfo, WeeklyReportData } from '../types';
 
 const UNLOCKED_BADGES_KEY = '@mood_journal_unlocked_badges';
+const TREE_XP_KEY = '@mood_journal_tree_xp';
+const STREAK_FREEZE_KEY = '@mood_journal_streak_freeze_info';
 
 /**
  * 初期アチーブメントバッジの定数定義
@@ -452,3 +454,261 @@ export const checkAndEvaluateBadges = async (
 
   return { badges, newlyUnlocked };
 };
+
+// ==========================================
+// 🌳 ココロの木（Mind Tree）ロジック
+// ==========================================
+
+export const STAGE_THRESHOLDS = [
+  { level: 1, minXp: 0, nextXp: 50, stageName: '芽ばえのココロ', emoji: '🌱' },
+  { level: 2, minXp: 50, nextXp: 150, stageName: 'すこやか新緑', emoji: '🌿' },
+  { level: 3, minXp: 150, nextXp: 300, stageName: 'のびやか若木', emoji: '🌳' },
+  { level: 4, minXp: 300, nextXp: 500, stageName: 'おおらかな大木', emoji: '🌲' },
+  { level: 5, minXp: 500, nextXp: 1000, stageName: 'まんかいの幸福木', emoji: '🌸' },
+];
+
+/**
+ * 累計XPからココロの木の成長情報を計算
+ */
+export const calculateMindTreeInfo = (totalXp: number): MindTreeInfo => {
+  let currentStage = STAGE_THRESHOLDS[0];
+  for (let i = STAGE_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (totalXp >= STAGE_THRESHOLDS[i].minXp) {
+      currentStage = STAGE_THRESHOLDS[i];
+      break;
+    }
+  }
+
+  const currentLevelXp = Math.max(0, totalXp - currentStage.minXp);
+  const xpNeeded = currentStage.nextXp - currentStage.minXp;
+
+  return {
+    level: currentStage.level,
+    xp: totalXp,
+    currentLevelXp,
+    nextLevelXp: xpNeeded,
+    stageName: currentStage.stageName,
+    emoji: currentStage.emoji,
+  };
+};
+
+/**
+ * 保存済みTree XPの取得
+ */
+export const getStoredTreeXP = async (): Promise<number> => {
+  try {
+    const value = await AsyncStorage.getItem(TREE_XP_KEY);
+    return value ? parseInt(value, 10) : 0;
+  } catch (error) {
+    console.error('Failed to load tree XP', error);
+    return 0;
+  }
+};
+
+/**
+ * Tree XPを追加保存する
+ */
+export const addTreeXP = async (amount: number): Promise<number> => {
+  try {
+    const current = await getStoredTreeXP();
+    const updated = current + amount;
+    await AsyncStorage.setItem(TREE_XP_KEY, updated.toString());
+    return updated;
+  } catch (error) {
+    console.error('Failed to add tree XP', error);
+    return 0;
+  }
+};
+
+// ==========================================
+// ❄️ ストリークフリーズ（1日救済チケット）ロジック
+// ==========================================
+
+interface StoredFreezeData {
+  freezeAvailable: boolean;
+  lastResetWeek: string; // ISO week key e.g. "2026-W30"
+  lastFrozenDate: string | null;
+}
+
+/**
+ * 年と日付からISO週番号キー (例: "2026-W30") を取得
+ */
+const getISOWeekKey = (date: Date): string => {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+};
+
+/**
+ * ストリークフリーズのデータを取得（週1回の補充チェック付き）
+ */
+export const getStreakFreezeData = async (): Promise<StoredFreezeData> => {
+  const currentWeekKey = getISOWeekKey(new Date());
+  try {
+    const json = await AsyncStorage.getItem(STREAK_FREEZE_KEY);
+    if (json) {
+      const data: StoredFreezeData = JSON.parse(json);
+      // 週が変わっていれば補充
+      if (data.lastResetWeek !== currentWeekKey) {
+        const resetData: StoredFreezeData = {
+          freezeAvailable: true,
+          lastResetWeek: currentWeekKey,
+          lastFrozenDate: data.lastFrozenDate,
+        };
+        await AsyncStorage.setItem(STREAK_FREEZE_KEY, JSON.stringify(resetData));
+        return resetData;
+      }
+      return data;
+    }
+  } catch (error) {
+    console.error('Failed to load freeze data', error);
+  }
+
+  // 初期データ
+  const initialData: StoredFreezeData = {
+    freezeAvailable: true,
+    lastResetWeek: currentWeekKey,
+    lastFrozenDate: null,
+  };
+  try {
+    await AsyncStorage.setItem(STREAK_FREEZE_KEY, JSON.stringify(initialData));
+  } catch (err) {
+    console.error('Failed to init freeze data', err);
+  }
+  return initialData;
+};
+
+/**
+ * フリーズ救済を適用して更新されたStreakInfoを計算する
+ */
+export const calculateStreakWithFreeze = async (entries: MoodEntry[]): Promise<StreakInfo> => {
+  const baseStreak = calculateStreak(entries);
+  const freezeData = await getStreakFreezeData();
+
+  // 基本計算でストリークが0の場合、1日前だけ空いているか（昨日がスキップされ、2日前に記録があるか）チェック
+  if (baseStreak.currentStreak === 0 && entries.length > 0 && freezeData.freezeAvailable) {
+    const uniqueDatesSet = new Set(entries.map((e) => getLocalDateString(e.timestamp)));
+    const todayStr = getLocalDateString(new Date());
+    
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayStr = getLocalDateString(yesterdayDate);
+
+    const twoDaysAgoDate = new Date();
+    twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
+    const twoDaysAgoStr = getLocalDateString(twoDaysAgoDate);
+
+    // 今日・昨日に記録がないが、2日前に記録があり、昨日をフリーズ消費して救済できる場合
+    if (!uniqueDatesSet.has(todayStr) && !uniqueDatesSet.has(yesterdayStr) && uniqueDatesSet.has(twoDaysAgoStr)) {
+      // フリーズを自動消費して昨日に架空適用
+      const updatedFreeze: StoredFreezeData = {
+        ...freezeData,
+        freezeAvailable: false,
+        lastFrozenDate: yesterdayStr,
+      };
+      await AsyncStorage.setItem(STREAK_FREEZE_KEY, JSON.stringify(updatedFreeze));
+
+      // 2日前からのストリークを計算
+      let checkDate = new Date(twoDaysAgoStr);
+      let streakCount = 1; // 昨日はフリーズで補填
+      while (true) {
+        const dateStr = getLocalDateString(checkDate);
+        if (uniqueDatesSet.has(dateStr)) {
+          streakCount++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      return {
+        currentStreak: streakCount,
+        longestStreak: Math.max(streakCount, baseStreak.longestStreak),
+        lastRecordedDate: twoDaysAgoStr,
+        freezeAvailable: false,
+        lastFrozenDate: yesterdayStr,
+      };
+    }
+  }
+
+  return {
+    ...baseStreak,
+    freezeAvailable: freezeData.freezeAvailable,
+    lastFrozenDate: freezeData.lastFrozenDate || undefined,
+  };
+};
+
+// ==========================================
+// 📊 週次感情レポート（Weekly Insight Report）
+// ==========================================
+
+export const getWeeklyReportData = (entries: MoodEntry[], weeklyXp: number = 0): WeeklyReportData => {
+  const now = new Date();
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(now.getDate() - 6);
+
+  const startStr = getLocalDateString(sevenDaysAgo);
+  const endStr = getLocalDateString(now);
+
+  const weeklyEntries = entries.filter((e) => {
+    const dateStr = getLocalDateString(e.timestamp);
+    return dateStr >= startStr && dateStr <= endStr;
+  });
+
+  const uniqueDays = new Set(weeklyEntries.map((e) => getLocalDateString(e.timestamp)));
+  const recordedDaysCount = uniqueDays.size;
+
+  let averageLevel: number | null = null;
+  let averageEmoji = '🌱';
+
+  if (weeklyEntries.length > 0) {
+    const sum = weeklyEntries.reduce((acc, curr) => acc + curr.mood, 0);
+    averageLevel = Math.round((sum / weeklyEntries.length) * 10) / 10;
+
+    if (averageLevel >= 4.5) averageEmoji = '😄';
+    else if (averageLevel >= 3.5) averageEmoji = '🙂';
+    else if (averageLevel >= 2.5) averageEmoji = '😐';
+    else if (averageLevel >= 1.5) averageEmoji = '🙁';
+    else averageEmoji = '😢';
+  }
+
+  // よく使われたタグ上位3つ
+  const tagCounts: Record<string, number> = {};
+  weeklyEntries.forEach((e) => {
+    if (e.tags) {
+      e.tags.forEach((t) => {
+        tagCounts[t] = (tagCounts[t] || 0) + 1;
+      });
+    }
+  });
+
+  const topTags = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([tag]) => tag);
+
+  let message = '今週もお疲れ様でした！振り返りで心を整えましょう✨';
+  if (recordedDaysCount >= 5) {
+    message = '素晴らしい継続力です！ココロの木もすくすく育っています🌸';
+  } else if (recordedDaysCount >= 3) {
+    message = 'マイペースに記録を重ねられていますね。自分を大切にする習慣が身についています😊';
+  } else if (recordedDaysCount >= 1) {
+    message = '忙しい中でも記録を残せましたね！小さな一歩が心の支えになります🌿';
+  }
+
+  return {
+    startDate: startStr,
+    endDate: endStr,
+    recordedDaysCount,
+    totalEntries: weeklyEntries.length,
+    averageLevel,
+    averageEmoji,
+    topTags,
+    treeXpGained: weeklyXp,
+    message,
+  };
+};
+

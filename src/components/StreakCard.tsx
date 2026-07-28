@@ -63,6 +63,20 @@ export const StreakCard: React.FC<StreakCardProps> = ({
       </View>
 
       <View style={styles.rightSection}>
+        {streakInfo.freezeAvailable && (
+          <View
+            style={[
+              styles.freezePill,
+              {
+                backgroundColor: '#E0F2FE',
+                borderColor: '#0284C7',
+              },
+            ]}
+          >
+            <Text style={styles.freezeEmoji}>❄️</Text>
+            <Text style={[styles.freezeText, { color: '#0369A1' }]}>1日救済あり</Text>
+          </View>
+        )}
         <View
           style={[
             styles.badgePill,
@@ -143,5 +157,22 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     fontWeight: '700',
     marginLeft: 4,
+  },
+  freezePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xs + 2,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    marginRight: Spacing.xs,
+  },
+  freezeEmoji: {
+    fontSize: 11,
+    marginRight: 2,
+  },
+  freezeText: {
+    fontSize: FontSize.xs - 1,
+    fontWeight: '700',
   },
 });

@@ -24,10 +24,21 @@ import { HealthCard } from '../components/HealthCard';
 import { StreakCard } from '../components/StreakCard';
 import { AchievementModal } from '../components/AchievementModal';
 import { BadgeUnlockedModal } from '../components/BadgeUnlockedModal';
-import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry, StreakInfo, AchievementBadge } from '../types';
+import { MindTreeCard } from '../components/MindTreeCard';
+import { WateringModal } from '../components/WateringModal';
+import { WeeklyReportModal } from '../components/WeeklyReportModal';
+import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession, MoodEntry, StreakInfo, AchievementBadge, MindTreeInfo, WeeklyReportData } from '../types';
 import { saveMoodEntry, getMoodEntries, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
-import { calculateStreak, checkAndEvaluateBadges } from '../utils/streak';
+import {
+  calculateStreak,
+  checkAndEvaluateBadges,
+  calculateMindTreeInfo,
+  getStoredTreeXP,
+  addTreeXP,
+  calculateStreakWithFreeze,
+  getWeeklyReportData,
+} from '../utils/streak';
 import {
   fetchTodayHealthData,
   getHealthSyncPreference,
@@ -58,6 +69,13 @@ export default function HomeScreen() {
   const [badges, setBadges] = useState<AchievementBadge[]>([]);
   const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<AchievementBadge | null>(null);
+
+  // ココロの木 & 習慣化インセンティブ ステート
+  const [treeInfo, setTreeInfo] = useState<MindTreeInfo | null>(null);
+  const [showWateringModal, setShowWateringModal] = useState(false);
+  const [lastXpGained, setLastXpGained] = useState(0);
+  const [weeklyReport, setWeeklyReport] = useState<WeeklyReportData | null>(null);
+  const [showWeeklyReportModal, setShowWeeklyReportModal] = useState(false);
 
 
   // ヘルスケア連携ステート
@@ -94,8 +112,15 @@ export default function HomeScreen() {
 
   const loadStreakAndBadges = async () => {
     const entries = await getMoodEntries();
-    const streak = calculateStreak(entries);
+    const streak = await calculateStreakWithFreeze(entries);
     setStreakInfo(streak);
+
+    const xp = await getStoredTreeXP();
+    const tree = calculateMindTreeInfo(xp);
+    setTreeInfo(tree);
+
+    const report = getWeeklyReportData(entries, 50);
+    setWeeklyReport(report);
 
     // 呼吸法セッション数をチェック（現段階では0、または過去エントリから取得）
     const breathingCount = entries.filter((e) => e.breathingSession).length;
@@ -206,8 +231,17 @@ export default function HomeScreen() {
 
     // 最新のエントリ一覧を取得してストリーク & アチーブメントを更新・判定
     const updatedEntries = await getMoodEntries();
-    const newStreak = calculateStreak(updatedEntries);
+    const newStreak = await calculateStreakWithFreeze(updatedEntries);
     setStreakInfo(newStreak);
+
+    // XP獲得とココロの木更新
+    const xpBonus = note.trim().length > 0 || selectedTags.length > 0 ? 10 : 0;
+    const xpGained = 20 + xpBonus;
+    const updatedXp = await addTreeXP(xpGained);
+    const updatedTree = calculateMindTreeInfo(updatedXp);
+    setTreeInfo(updatedTree);
+    setLastXpGained(xpGained);
+    setShowWateringModal(true);
 
     const breathingCount = updatedEntries.filter((e) => e.breathingSession).length;
     const { badges: newBadges, newlyUnlocked } = await checkAndEvaluateBadges(updatedEntries, breathingCount);
@@ -295,6 +329,26 @@ export default function HomeScreen() {
               totalBadgeCount={badges.length}
               onPress={() => setShowAchievementModal(true)}
             />
+
+            {/* ココロの木（Growth Mind Tree）成長カード */}
+            {treeInfo && <MindTreeCard treeInfo={treeInfo} />}
+
+            {/* 週末限定 今週の感情レポートバナー */}
+            {(today.getDay() === 0 || today.getDay() === 6 || true) && weeklyReport && (
+              <TouchableOpacity
+                style={[
+                  styles.weeklyReportBanner,
+                  { backgroundColor: `${colors.primary}15`, borderColor: colors.primary },
+                ]}
+                onPress={() => setShowWeeklyReportModal(true)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="sparkles" size={18} color={colors.primaryDark} />
+                <Text style={[styles.weeklyReportBannerText, { color: colors.primaryDark }]}>
+                  今週の感情レポートが届きました！タップして確認 📊
+                </Text>
+              </TouchableOpacity>
+            )}
 
             {/* 有名人・偉人の名言 */}
             <Animated.View style={[styles.messageCard, { backgroundColor: colors.surface, borderLeftColor: colors.primary, opacity: messageOpacity }]}>
@@ -438,6 +492,21 @@ export default function HomeScreen() {
         unlockedBadge={newlyUnlockedBadge}
         onClose={() => setNewlyUnlockedBadge(null)}
       />
+
+      {/* 水やり・XP獲得演出モーダル */}
+      <WateringModal
+        visible={showWateringModal}
+        xpGained={lastXpGained}
+        treeInfo={treeInfo}
+        onClose={() => setShowWateringModal(false)}
+      />
+
+      {/* 今週の感情レポートモーダル */}
+      <WeeklyReportModal
+        visible={showWeeklyReportModal}
+        reportData={weeklyReport}
+        onClose={() => setShowWeeklyReportModal(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -554,6 +623,21 @@ const styles = StyleSheet.create({
   },
   savedText: {
     fontSize: FontSize.md,
+  },
+  weeklyReportBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    marginBottom: Spacing.md,
+    gap: Spacing.xs,
+  },
+  weeklyReportBannerText: {
+    fontSize: FontSize.xs + 1,
+    fontWeight: '700',
+    flex: 1,
   },
 });
 
