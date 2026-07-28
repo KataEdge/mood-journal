@@ -2,7 +2,7 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from './src/screens/HomeScreen';
@@ -16,6 +16,7 @@ const Tab = createBottomTabNavigator();
 
 function MainNavigator() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <NavigationContainer>
@@ -29,9 +30,9 @@ function MainNavigator() {
             backgroundColor: colors.surface,
             borderTopColor: colors.divider,
             borderTopWidth: 1,
-            paddingBottom: 4,
-            paddingTop: 4,
-            height: 56,
+            paddingTop: 6,
+            paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+            height: 60 + (insets.bottom > 0 ? insets.bottom : 8),
           },
           tabBarLabelStyle: {
             fontSize: FontSize.xs,
