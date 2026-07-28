@@ -1,20 +1,73 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+
+import HomeScreen from './src/screens/HomeScreen';
+import HistoryScreen from './src/screens/HistoryScreen';
+import SafetyScreen from './src/screens/SafetyScreen';
+import { Colors, FontSize } from './src/constants/theme';
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <StatusBar style="dark" />
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarActiveTintColor: Colors.primaryDark,
+            tabBarInactiveTintColor: Colors.textLight,
+            tabBarStyle: {
+              backgroundColor: Colors.surface,
+              borderTopColor: Colors.divider,
+              borderTopWidth: 1,
+              paddingBottom: 4,
+              paddingTop: 4,
+              height: 56,
+            },
+            tabBarLabelStyle: {
+              fontSize: FontSize.xs,
+              fontWeight: '600',
+            },
+          }}
+        >
+          <Tab.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{
+              tabBarLabel: 'きろく',
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="create-outline" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="History"
+            component={HistoryScreen}
+            options={{
+              tabBarLabel: 'りれき',
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="time-outline" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Safety"
+            component={SafetyScreen}
+            options={{
+              tabBarLabel: 'あんない',
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="heart-outline" size={size} color={color} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
