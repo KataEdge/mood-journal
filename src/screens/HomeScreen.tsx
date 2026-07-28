@@ -15,6 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MoodSelector from '../components/MoodSelector';
 import SafetyModal from '../components/SafetyModal';
+import { TagSelector } from '../components/TagSelector';
 import { MoodOption, MoodLevel, Quote } from '../types';
 import { saveMoodEntry, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
@@ -28,6 +29,7 @@ import {
 
 export default function HomeScreen() {
   const [selectedMood, setSelectedMood] = useState<MoodLevel | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [quote, setQuote] = useState<Quote>(getRandomQuote());
   const [showSafetyModal, setShowSafetyModal] = useState(false);
@@ -97,6 +99,14 @@ export default function HomeScreen() {
     setSaved(false);
   };
 
+  const handleToggleTag = (tagName: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName]
+    );
+  };
+
   const handleSave = async () => {
     if (!selectedMood) return;
 
@@ -107,6 +117,7 @@ export default function HomeScreen() {
       mood: selectedMood,
       note: note.trim(),
       timestamp: new Date().toISOString(),
+      tags: selectedTags,
     };
 
     await saveMoodEntry(entry);
@@ -128,6 +139,7 @@ export default function HomeScreen() {
     ]).start(() => {
       setSaved(false);
       setSelectedMood(null);
+      setSelectedTags([]);
       setNote('');
       refreshQuote();
     });
@@ -187,6 +199,12 @@ export default function HomeScreen() {
             <MoodSelector
               selectedMood={selectedMood}
               onSelect={handleMoodSelect}
+            />
+
+            {/* 感情要因タグセレクター */}
+            <TagSelector
+              selectedTags={selectedTags}
+              onToggleTag={handleToggleTag}
             />
 
             {/* メモ入力 */}

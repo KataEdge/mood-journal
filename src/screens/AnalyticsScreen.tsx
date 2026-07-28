@@ -129,6 +129,33 @@ export default function AnalyticsScreen() {
               distribution={summary.distribution}
               totalCount={summary.totalCount}
             />
+
+            {/* 要因（タグ）別分析 */}
+            {summary.tagAnalytics && summary.tagAnalytics.length > 0 ? (
+              <View style={[styles.sectionCard, Shadow.sm]}>
+                <Text style={styles.sectionTitle}>🏷️ 要因（タグ）別の感情傾向</Text>
+                <Text style={styles.sectionSubtitle}>
+                  タグごとの記録回数と平均気分スコア
+                </Text>
+                <View style={styles.tagList}>
+                  {summary.tagAnalytics.map((item) => (
+                    <View key={item.tagName} style={styles.tagRow}>
+                      <View style={styles.tagLabelGroup}>
+                        <Text style={styles.tagNameText}>#{item.tagName}</Text>
+                        <Text style={styles.tagCountText}>{item.count}件</Text>
+                      </View>
+
+                      <View style={styles.tagMoodGroup}>
+                        <Text style={styles.tagEmoji}>{item.averageEmoji}</Text>
+                        <Text style={styles.tagMoodText}>
+                          {item.averageLabel} ({item.averageLevel})
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ) : null}
           </>
         )}
       </ScrollView>
@@ -244,5 +271,65 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     lineHeight: 20,
     fontWeight: '500',
+  },
+  sectionCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  sectionTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: 2,
+  },
+  sectionSubtitle: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+  },
+  tagList: {
+    marginTop: Spacing.xs,
+  },
+  tagRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.xs + 2,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
+  },
+  tagLabelGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  tagNameText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  tagCountText: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    backgroundColor: Colors.tagBg,
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  tagMoodGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tagEmoji: {
+    fontSize: FontSize.md,
+    marginRight: 4,
+  },
+  tagMoodText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    color: Colors.textSecondary,
   },
 });

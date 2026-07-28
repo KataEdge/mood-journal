@@ -72,3 +72,65 @@ export async function setFirstLaunchDone(): Promise<void> {
     console.error('Failed to set first launch flag:', error);
   }
 }
+
+const CUSTOM_TAGS_KEY = '@mood_journal_custom_tags';
+import { DEFAULT_PRESET_TAGS } from '../constants/theme';
+
+/**
+ * 全ての感情タグ（プリセット＋カスタム）を取得する
+ */
+export async function getAllTags(): Promise<string[]> {
+  try {
+    const json = await AsyncStorage.getItem(CUSTOM_TAGS_KEY);
+    const customTags: string[] = json ? JSON.parse(json) : [];
+    // プリセットと重複しないカスタムタグを結合
+    const combined = [...DEFAULT_PRESET_TAGS];
+    for (const tag of customTags) {
+      if (!combined.includes(tag)) {
+        combined.push(tag);
+      }
+    }
+    return combined;
+  } catch (error) {
+    console.error('Failed to get tags:', error);
+    return [...DEFAULT_PRESET_TAGS];
+  }
+}
+
+/**
+ * 新しいカスタムタグを追加する
+ */
+export async function addCustomTag(tagName: string): Promise<string[]> {
+  try {
+    const trimmed = tagName.trim();
+    if (!trimmed) return await getAllTags();
+
+    const json = await AsyncStorage.getItem(CUSTOM_TAGS_KEY);
+    const customTags: string[] = json ? JSON.parse(json) : [];
+
+    if (!DEFAULT_PRESET_TAGS.includes(trimmed) && !customTags.includes(trimmed)) {
+      const updated = [...customTags, trimmed];
+      await AsyncStorage.setItem(CUSTOM_TAGS_KEY, JSON.stringify(updated));
+    }
+    return await getAllTags();
+  } catch (error) {
+    console.error('Failed to add custom tag:', error);
+    throw error;
+  }
+}
+
+/**
+ * カスタムタグを削除する
+ */
+export async function deleteCustomTag(tagName: string): Promise<string[]> {
+  try {
+    const json = await AsyncStorage.getItem(CUSTOM_TAGS_KEY);
+    const customTags: string[] = json ? JSON.parse(json) : [];
+    const filtered = customTags.filter((t) => t !== tagName);
+    await AsyncStorage.setItem(CUSTOM_TAGS_KEY, JSON.stringify(filtered));
+    return await getAllTags();
+  } catch (error) {
+    console.error('Failed to delete custom tag:', error);
+    throw error;
+  }
+}

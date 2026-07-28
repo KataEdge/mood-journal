@@ -114,6 +114,35 @@ export const calculateAnalyticsSummary = (
     }
   }
 
+  // タグ別の集計
+  const tagMap = new Map<string, { count: number; sumMood: number }>();
+  filteredEntries.forEach((entry) => {
+    if (entry.tags && entry.tags.length > 0) {
+      entry.tags.forEach((tag) => {
+        const current = tagMap.get(tag) || { count: 0, sumMood: 0 };
+        tagMap.set(tag, {
+          count: current.count + 1,
+          sumMood: current.sumMood + entry.mood,
+        });
+      });
+    }
+  });
+
+  const tagAnalytics = Array.from(tagMap.entries())
+    .map(([tagName, stat]) => {
+      const avg = Number((stat.sumMood / stat.count).toFixed(1));
+      const roundedLevel = Math.min(Math.max(Math.round(avg), 1), 5) as MoodLevel;
+      const opt = MOOD_OPTIONS.find((m) => m.level === roundedLevel);
+      return {
+        tagName,
+        count: stat.count,
+        averageLevel: avg,
+        averageEmoji: opt?.emoji || '😐',
+        averageLabel: opt?.label || '普通',
+      };
+    })
+    .sort((a, b) => b.count - a.count || (a.averageLevel || 0) - (b.averageLevel || 0));
+
   return {
     totalCount,
     averageLevel,
@@ -121,6 +150,7 @@ export const calculateAnalyticsSummary = (
     averageLabel,
     distribution,
     chartPoints,
+    tagAnalytics,
     adviceMessage,
   };
 };

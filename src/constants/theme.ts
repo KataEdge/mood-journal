@@ -34,6 +34,11 @@ export const Colors = {
   mood4: '#AA96DA', // 悪い - ラベンダー
   mood5: '#FF8B94', // とても悪い - ソフトピンク
 
+  tagBg: '#EDF2F7',
+  tagSelectedBg: '#AA96DA',
+  tagText: '#4A5568',
+  tagSelectedText: '#FFFFFF',
+
   shadow: '#000000',
 } as const;
 
@@ -109,4 +114,18 @@ export const MOOD_OPTIONS: MoodOption[] = [
   { level: 3, emoji: '😐', label: '普通', color: Colors.mood3 },
   { level: 4, emoji: '😔', label: '少し辛い', color: Colors.mood4 },
   { level: 5, emoji: '😢', label: '辛い', color: Colors.mood5 },
+];
+
+/**
+ * デフォルトの感情要因プリセットタグ
+ */
+export const DEFAULT_PRESET_TAGS: string[] = [
+  '仕事・勉強',
+  '人間関係',
+  '健康・体調',
+  '趣味・娯楽',
+  '睡眠',
+  '家族',
+  '金銭・買物',
+  '移動・旅行',
 ];

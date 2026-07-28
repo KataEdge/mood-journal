@@ -58,6 +58,15 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
         {entry.note ? (
           <Text style={styles.note}>{entry.note}</Text>
         ) : null}
+        {entry.tags && entry.tags.length > 0 ? (
+          <View style={styles.tagsContainer}>
+            {entry.tags.map((tag) => (
+              <View key={tag} style={styles.tagBadge}>
+                <Text style={styles.tagBadgeText}>#{tag}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -108,5 +117,22 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.divider,
     lineHeight: 20,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginTop: Spacing.sm,
+  },
+  tagBadge: {
+    backgroundColor: Colors.tagBg,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  tagBadgeText: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    fontWeight: '500',
   },
 });

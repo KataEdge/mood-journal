@@ -12,6 +12,27 @@ export interface MoodEntry {
   mood: MoodLevel;
   note: string;
   timestamp: string; // ISO 8601
+  tags?: string[];
+}
+
+/**
+ * 感情要因タグの型定義
+ */
+export interface Tag {
+  id: string;
+  name: string;
+  isCustom?: boolean;
+}
+
+/**
+ * タグ別感情分析アイテム
+ */
+export interface TagAnalyticsItem {
+  tagName: string;
+  count: number;
+  averageLevel: number | null;
+  averageEmoji: string;
+  averageLabel: string;
 }
 
 /**
@@ -78,6 +99,7 @@ export interface AnalyticsSummary {
   averageLabel: string;
   distribution: MoodDistributionItem[];
   chartPoints: MoodChartPoint[];
+  tagAnalytics: TagAnalyticsItem[];
   adviceMessage: string;
 }
 
