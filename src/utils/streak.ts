@@ -71,6 +71,86 @@ export const INITIAL_BADGES: Omit<AchievementBadge, 'unlockedAt' | 'currentCount
     category: 'special',
     targetCount: 1,
   },
+  {
+    id: 'streak_14',
+    title: '2週間コンスタント',
+    description: '14日間続けて感情を記録した',
+    icon: '🏅',
+    category: 'streak',
+    targetCount: 14,
+  },
+  {
+    id: 'streak_60',
+    title: '2ヶ月の習慣',
+    description: '60日間続けて感情を記録した',
+    icon: '👑',
+    category: 'streak',
+    targetCount: 60,
+  },
+  {
+    id: 'total_100',
+    title: '100の感情',
+    description: '累計100回感情を記録した',
+    icon: '💯',
+    category: 'total',
+    targetCount: 100,
+  },
+  {
+    id: 'early_bird',
+    title: '朝のひととき',
+    description: '朝の時間帯（5〜9時）に記録した',
+    icon: '🌅',
+    category: 'special',
+    targetCount: 1,
+  },
+  {
+    id: 'night_owl',
+    title: '夜のふりかえり',
+    description: '夜の時間帯（21〜24時）に記録した',
+    icon: '🌙',
+    category: 'special',
+    targetCount: 1,
+  },
+  {
+    id: 'weekend_care',
+    title: '週末のケア',
+    description: '土曜日または日曜日に記録した',
+    icon: '☕',
+    category: 'special',
+    targetCount: 1,
+  },
+  {
+    id: 'all_moods',
+    title: '全感情マスター',
+    description: '5段階すべての気分を1回以上記録した',
+    icon: '🌈',
+    category: 'special',
+    targetCount: 5,
+  },
+  {
+    id: 'positive_streak',
+    title: 'ハッピーデイ',
+    description: '良い・とても良い気分を累計5回記録した',
+    icon: '✨',
+    category: 'special',
+    targetCount: 5,
+  },
+  {
+    id: 'writer',
+    title: '思いをつづる',
+    description: 'メモ付きで累計5回記録した',
+    icon: '✍️',
+    category: 'special',
+    targetCount: 5,
+  },
+  {
+    id: 'breathing_master',
+    title: '深呼吸の達人',
+    description: '4-7-8呼吸法を累計5回完了した',
+    icon: '🫁',
+    category: 'selfcare',
+    targetCount: 5,
+  },
 ];
 
 /**
@@ -261,6 +341,23 @@ export const checkAndEvaluateBadges = async (
   const totalEntries = entries.length;
   const hasTaggedEntry = entries.some((e) => e.tags && e.tags.length > 0);
 
+  const uniqueMoodsCount = new Set(entries.map((e) => e.mood)).size;
+  const positiveCount = entries.filter((e) => e.mood === 4 || e.mood === 5).length;
+  const notedCount = entries.filter((e) => e.note && e.note.trim().length > 0).length;
+
+  const hasEarlyBirdEntry = entries.some((e) => {
+    const hours = new Date(e.timestamp).getHours();
+    return hours >= 5 && hours < 9;
+  });
+  const hasNightOwlEntry = entries.some((e) => {
+    const hours = new Date(e.timestamp).getHours();
+    return hours >= 21 && hours < 24;
+  });
+  const hasWeekendEntry = entries.some((e) => {
+    const day = new Date(e.timestamp).getDay();
+    return day === 0 || day === 6;
+  });
+
   const newlyUnlocked: AchievementBadge[] = [];
   const updatedUnlockedMap = { ...unlockedMap };
   const nowISO = new Date().toISOString();
@@ -278,8 +375,14 @@ export const checkAndEvaluateBadges = async (
       case 'streak_7':
         currentCount = Math.min(streakInfo.currentStreak, 7);
         break;
+      case 'streak_14':
+        currentCount = Math.min(streakInfo.currentStreak, 14);
+        break;
       case 'streak_30':
         currentCount = Math.min(streakInfo.currentStreak, 30);
+        break;
+      case 'streak_60':
+        currentCount = Math.min(streakInfo.currentStreak, 60);
         break;
       case 'total_10':
         currentCount = Math.min(totalEntries, 10);
@@ -287,11 +390,35 @@ export const checkAndEvaluateBadges = async (
       case 'total_50':
         currentCount = Math.min(totalEntries, 50);
         break;
+      case 'total_100':
+        currentCount = Math.min(totalEntries, 100);
+        break;
       case 'selfcare_breathing':
         currentCount = breathingCount > 0 ? 1 : 0;
         break;
+      case 'breathing_master':
+        currentCount = Math.min(breathingCount, 5);
+        break;
       case 'tag_user':
         currentCount = hasTaggedEntry ? 1 : 0;
+        break;
+      case 'early_bird':
+        currentCount = hasEarlyBirdEntry ? 1 : 0;
+        break;
+      case 'night_owl':
+        currentCount = hasNightOwlEntry ? 1 : 0;
+        break;
+      case 'weekend_care':
+        currentCount = hasWeekendEntry ? 1 : 0;
+        break;
+      case 'all_moods':
+        currentCount = Math.min(uniqueMoodsCount, 5);
+        break;
+      case 'positive_streak':
+        currentCount = Math.min(positiveCount, 5);
+        break;
+      case 'writer':
+        currentCount = Math.min(notedCount, 5);
         break;
       default:
         currentCount = 0;

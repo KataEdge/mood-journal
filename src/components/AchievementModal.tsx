@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   View,
@@ -9,7 +9,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AchievementBadge } from '../types';
+import { AchievementBadge, AchievementCategory } from '../types';
 import { useTheme } from '../context/ThemeContext';
 import { FontSize, Spacing, BorderRadius } from '../constants/theme';
 
@@ -20,6 +20,16 @@ interface AchievementModalProps {
   currentStreak: number;
 }
 
+type FilterCategory = 'all' | AchievementCategory;
+
+const CATEGORY_TABS: { key: FilterCategory; label: string }[] = [
+  { key: 'all', label: 'すべて' },
+  { key: 'streak', label: '連続' },
+  { key: 'total', label: '累計' },
+  { key: 'selfcare', label: 'セルフケア' },
+  { key: 'special', label: 'スペシャル' },
+];
+
 export const AchievementModal: React.FC<AchievementModalProps> = ({
   visible,
   onClose,
@@ -27,10 +37,16 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
   currentStreak,
 }) => {
   const { colors } = useTheme();
+  const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('all');
 
   const unlockedCount = badges.filter((b) => b.unlockedAt !== null).length;
   const totalCount = badges.length;
   const progressPercent = Math.round((unlockedCount / (totalCount || 1)) * 100);
+
+  const filteredBadges = badges.filter((badge) => {
+    if (selectedCategory === 'all') return true;
+    return badge.category === selectedCategory;
+  });
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
@@ -95,13 +111,54 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
             </View>
           </View>
 
+          {/* カテゴリフィルタータブ */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabScrollView}
+            contentContainerStyle={styles.tabContainer}
+          >
+            {CATEGORY_TABS.map((tab) => {
+              const isActive = selectedCategory === tab.key;
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  style={[
+                    styles.tabPill,
+                    {
+                      backgroundColor: isActive
+                        ? colors.primaryDark
+                        : colors.surface,
+                      borderColor: isActive ? colors.primaryDark : colors.border,
+                    },
+                  ]}
+                  onPress={() => setSelectedCategory(tab.key)}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={[
+                      styles.tabText,
+                      {
+                        color: isActive
+                          ? '#FFFFFF'
+                          : colors.textSecondary,
+                      },
+                    ]}
+                  >
+                    {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
           {/* バッジ一覧 */}
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-            バッジコレクション
+            バッジコレクション ({filteredBadges.length})
           </Text>
 
           <View style={styles.badgeGrid}>
-            {badges.map((badge) => {
+            {filteredBadges.map((badge) => {
               const isUnlocked = badge.unlockedAt !== null;
               const percent = Math.min(
                 100,
@@ -237,7 +294,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   summaryTopRow: {
     flexDirection: 'row',
@@ -266,6 +323,25 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: '100%',
     borderRadius: BorderRadius.full,
+  },
+  tabScrollView: {
+    marginBottom: Spacing.md,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  tabPill: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    marginRight: Spacing.xs,
+  },
+  tabText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
   },
   sectionTitle: {
     fontSize: FontSize.sm,
