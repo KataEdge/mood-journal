@@ -177,6 +177,52 @@ const calculateLongestStreak = (sortedDatesDescending: string[]): number => {
   return maxStreak;
 };
 
+export interface CalendarStreakData {
+  dateMoodMap: Record<string, MoodEntry[]>;
+  streakDates: Set<string>;
+}
+
+/**
+ * カレンダー表示用に、日付ごとの記録マップと連続ストリークに含まれる日付の集合を取得
+ */
+export const getCalendarStreakData = (entries: MoodEntry[]): CalendarStreakData => {
+  const dateMoodMap: Record<string, MoodEntry[]> = {};
+  if (!entries || entries.length === 0) {
+    return { dateMoodMap, streakDates: new Set() };
+  }
+
+  // 日付文字列 (YYYY-MM-DD) ごとにエントリーをまとめる
+  entries.forEach((entry) => {
+    const dateStr = getLocalDateString(entry.timestamp);
+    if (!dateMoodMap[dateStr]) {
+      dateMoodMap[dateStr] = [];
+    }
+    dateMoodMap[dateStr].push(entry);
+  });
+
+  const uniqueDates = Object.keys(dateMoodMap);
+  const uniqueDatesSet = new Set(uniqueDates);
+  const streakDates = new Set<string>();
+
+  uniqueDates.forEach((dateStr) => {
+    const d = new Date(dateStr);
+    const prev = new Date(d);
+    prev.setDate(prev.getDate() - 1);
+    const prevStr = getLocalDateString(prev);
+
+    const next = new Date(d);
+    next.setDate(next.getDate() + 1);
+    const nextStr = getLocalDateString(next);
+
+    // 前日または翌日に記録があれば連続記録（ストリーク）の一部とみなす
+    if (uniqueDatesSet.has(prevStr) || uniqueDatesSet.has(nextStr)) {
+      streakDates.add(dateStr);
+    }
+  });
+
+  return { dateMoodMap, streakDates };
+};
+
 /**
  * 解放済みバッジの保存データを取得
  */
