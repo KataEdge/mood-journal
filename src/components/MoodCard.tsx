@@ -65,6 +65,15 @@ export default function MoodCard({ entry, onDelete }: MoodCardProps) {
             ))}
           </View>
         ) : null}
+        {entry.breathingSession ? (
+          <View style={styles.breathingContainer}>
+            <View style={[styles.breathingBadge, { backgroundColor: colors.primary + '30' }]}>
+              <Text style={[styles.breathingBadgeText, { color: colors.textPrimary }]}>
+                🍃 4-7-8呼吸法 ({entry.breathingSession.completedCycles}セット)
+              </Text>
+            </View>
+          </View>
+        ) : null}
         {entry.healthData ? (
           <View style={styles.healthContainer}>
             <View style={[styles.healthBadge, { backgroundColor: colors.primary + '25' }]}>
@@ -139,6 +148,19 @@ const styles = StyleSheet.create({
   tagBadgeText: {
     fontSize: FontSize.xs,
     fontWeight: '500',
+  },
+  breathingContainer: {
+    flexDirection: 'row',
+    marginTop: Spacing.xs,
+  },
+  breathingBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.sm,
+  },
+  breathingBadgeText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
   },
   healthContainer: {
     flexDirection: 'row',

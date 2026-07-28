@@ -21,7 +21,7 @@ import BreathingGuideModal from '../components/BreathingGuideModal';
 import { TagSelector } from '../components/TagSelector';
 import { ThemeHeader } from '../components/ThemeHeader';
 import { HealthCard } from '../components/HealthCard';
-import { MoodOption, MoodLevel, Quote, HealthData } from '../types';
+import { MoodOption, MoodLevel, Quote, HealthData, BreathingSession } from '../types';
 import { saveMoodEntry, isFirstLaunch, setFirstLaunchDone } from '../utils/storage';
 import { getRandomQuote } from '../utils/messages';
 import {
@@ -45,6 +45,7 @@ export default function HomeScreen() {
   const [quote, setQuote] = useState<Quote>(getRandomQuote());
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [showBreathingModal, setShowBreathingModal] = useState(false);
+  const [breathingSession, setBreathingSession] = useState<BreathingSession | null>(null);
   const [saved, setSaved] = useState(false);
 
   // ヘルスケア連携ステート
@@ -137,6 +138,16 @@ export default function HomeScreen() {
     });
   };
 
+  const handleBreathingComplete = (session: BreathingSession) => {
+    setBreathingSession(session);
+    // 「呼吸法」タグを自動追加（無ければ）
+    setSelectedTags((prev) => (prev.includes('呼吸法') ? prev : [...prev, '呼吸法']));
+  };
+
+  const handleClearBreathingSession = () => {
+    setBreathingSession(null);
+  };
+
   const handleMoodSelect = (option: MoodOption) => {
     setSelectedMood(option.level);
     setSaved(false);
@@ -164,6 +175,7 @@ export default function HomeScreen() {
       timestamp: new Date().toISOString(),
       tags: selectedTags,
       ...(healthEnabled && healthData ? { healthData } : {}),
+      ...(breathingSession ? { breathingSession } : {}),
     };
 
     await saveMoodEntry(entry);
@@ -187,6 +199,7 @@ export default function HomeScreen() {
       setSelectedMood(null);
       setSelectedTags([]);
       setNote('');
+      setBreathingSession(null);
       refreshQuote();
 
       if (isLowMood) {
@@ -251,6 +264,26 @@ export default function HomeScreen() {
                 <Text style={[styles.refreshText, { color: colors.primaryDark }]}>🔄 別の名言を見る</Text>
               </TouchableOpacity>
             </Animated.View>
+
+            {/* 呼吸法実践ステータス表示 */}
+            {breathingSession && (
+              <View style={[styles.breathingCard, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+                <View style={styles.breathingCardLeft}>
+                  <Ionicons name="leaf-outline" size={24} color={colors.primaryDark} />
+                  <View style={styles.breathingCardTextGroup}>
+                    <Text style={[styles.breathingCardTitle, { color: colors.textPrimary }]}>
+                      4-7-8 呼吸法を実践済み 🍃
+                    </Text>
+                    <Text style={[styles.breathingCardSub, { color: colors.textSecondary }]}>
+                      {breathingSession.completedCycles}セット完了 ({new Date(breathingSession.completedAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })})
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity onPress={handleClearBreathingSession} style={styles.breathingCardClose}>
+                  <Ionicons name="close-circle-outline" size={22} color={colors.textLight} />
+                </TouchableOpacity>
+              </View>
+            )}
 
             {/* 気分セレクター */}
             <MoodSelector
@@ -338,6 +371,7 @@ export default function HomeScreen() {
       <BreathingGuideModal
         visible={showBreathingModal}
         onClose={() => setShowBreathingModal(false)}
+        onCompleteWithBreathing={handleBreathingComplete}
       />
     </SafeAreaView>
   );
@@ -384,6 +418,36 @@ const styles = StyleSheet.create({
   },
   refreshText: {
     fontSize: FontSize.sm,
+  },
+  breathingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    ...Shadow.sm,
+  },
+  breathingCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    flex: 1,
+  },
+  breathingCardTextGroup: {
+    flex: 1,
+  },
+  breathingCardTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+  },
+  breathingCardSub: {
+    fontSize: FontSize.xs,
+    marginTop: 2,
+  },
+  breathingCardClose: {
+    padding: Spacing.xs,
   },
   noteCard: {
     borderRadius: BorderRadius.lg,

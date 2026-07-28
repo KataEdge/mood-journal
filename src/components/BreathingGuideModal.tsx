@@ -12,10 +12,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
+import { BreathingSession } from '../types';
 
 interface BreathingGuideModalProps {
   visible: boolean;
   onClose: () => void;
+  onCompleteWithBreathing?: (session: BreathingSession) => void;
 }
 
 type Phase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'completed';
@@ -23,6 +25,7 @@ type Phase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'completed';
 export default function BreathingGuideModal({
   visible,
   onClose,
+  onCompleteWithBreathing,
 }: BreathingGuideModalProps) {
   const { colors } = useTheme();
   const [phase, setPhase] = useState<Phase>('idle');
@@ -148,6 +151,16 @@ export default function BreathingGuideModal({
     }
   };
 
+  const handleCompleteAndRecord = () => {
+    if (onCompleteWithBreathing) {
+      onCompleteWithBreathing({
+        completedCycles: cycleCount > 0 ? cycleCount : 3,
+        completedAt: new Date().toISOString(),
+      });
+    }
+    onClose();
+  };
+
   return (
     <Modal
       visible={visible}
@@ -222,18 +235,28 @@ export default function BreathingGuideModal({
             <View style={{ gap: Spacing.sm }}>
               <TouchableOpacity
                 style={[styles.startButton, { backgroundColor: colors.primary }]}
+                onPress={handleCompleteAndRecord}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="create-outline" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
+                <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>呼吸法を記録して気分を入力 🍃</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.stopButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}
                 onPress={startBreathingCycle}
                 activeOpacity={0.8}
               >
-                <Ionicons name="refresh" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
-                <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>もう一度行う</Text>
+                <Ionicons name="refresh" size={20} color={colors.textPrimary} style={styles.btnIcon} />
+                <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>もう一度行う</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={[styles.stopButton, { backgroundColor: colors.border }]}
                 onPress={onClose}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>終了する</Text>
+                <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>記録せずに閉じる</Text>
               </TouchableOpacity>
             </View>
           ) : (

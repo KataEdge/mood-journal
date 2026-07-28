@@ -21,6 +21,14 @@ export interface HealthData {
 }
 
 /**
+ * 4-7-8呼吸法セッション情報
+ */
+export interface BreathingSession {
+  completedCycles: number;  // 完了したサイクル数 (例: 3)
+  completedAt: string;      // 実施完了日時 (ISO 8601)
+}
+
+/**
  * 気分の記録エントリ
  */
 export interface MoodEntry {
@@ -30,6 +38,7 @@ export interface MoodEntry {
   timestamp: string; // ISO 8601
   tags?: string[];
   healthData?: HealthData;
+  breathingSession?: BreathingSession;
 }
 
 /**
