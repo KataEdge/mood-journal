@@ -15,6 +15,7 @@ import { calculateAnalyticsSummary } from '../utils/analytics';
 import { calculateHealthStats } from '../utils/stats';
 import { MoodChart } from '../components/MoodChart';
 import { MoodDistribution } from '../components/MoodDistribution';
+import { TagAnalytics } from '../components/TagAnalytics';
 import { ThemeHeader } from '../components/ThemeHeader';
 import { FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
@@ -169,31 +170,7 @@ export default function AnalyticsScreen() {
             )}
 
             {/* 要因（タグ）別分析 */}
-            {summary.tagAnalytics && summary.tagAnalytics.length > 0 ? (
-              <View style={[styles.sectionCard, { backgroundColor: colors.surface }, Shadow.sm]}>
-                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>🏷️ 要因（タグ）別の感情傾向</Text>
-                <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-                  タグごとの記録回数と平均気分
-                </Text>
-                <View style={styles.tagList}>
-                  {summary.tagAnalytics.map((item) => (
-                    <View key={item.tagName} style={[styles.tagRow, { borderBottomColor: colors.divider }]}>
-                      <View style={styles.tagLabelGroup}>
-                        <Text style={[styles.tagNameText, { color: colors.textPrimary }]}>#{item.tagName}</Text>
-                        <Text style={[styles.tagCountText, { color: colors.textSecondary, backgroundColor: colors.tagBg }]}>{item.count}件</Text>
-                      </View>
-
-                      <View style={styles.tagMoodGroup}>
-                        <Text style={styles.tagEmoji}>{item.averageEmoji}</Text>
-                        <Text style={[styles.tagMoodText, { color: colors.textSecondary }]}>
-                          {item.averageLabel}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            ) : null}
+            <TagAnalytics items={summary.tagAnalytics} />
           </>
         )}
       </ScrollView>

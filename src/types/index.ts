@@ -42,6 +42,11 @@ export interface Tag {
 }
 
 /**
+ * タグ別感情分析のカテゴリ分類
+ */
+export type TagAnalyticsCategory = 'positive' | 'negative' | 'neutral';
+
+/**
  * タグ別感情分析アイテム
  */
 export interface TagAnalyticsItem {
@@ -50,6 +55,7 @@ export interface TagAnalyticsItem {
   averageLevel: number | null;
   averageEmoji: string;
   averageLabel: string;
+  category: TagAnalyticsCategory;
 }
 
 /**

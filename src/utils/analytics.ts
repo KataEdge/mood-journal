@@ -1,4 +1,4 @@
-import { MoodEntry, TimeRange, AnalyticsSummary, MoodDistributionItem, MoodChartPoint, MoodLevel } from '../types';
+import { MoodEntry, TimeRange, AnalyticsSummary, MoodDistributionItem, MoodChartPoint, MoodLevel, TagAnalyticsCategory } from '../types';
 import { MOOD_OPTIONS } from '../constants/theme';
 
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
@@ -133,12 +133,21 @@ export const calculateAnalyticsSummary = (
       const avg = Number((stat.sumMood / stat.count).toFixed(1));
       const roundedLevel = Math.min(Math.max(Math.round(avg), 1), 5) as MoodLevel;
       const opt = MOOD_OPTIONS.find((m) => m.level === roundedLevel);
+
+      let category: TagAnalyticsCategory = 'neutral';
+      if (avg <= 2.5) {
+        category = 'positive';
+      } else if (avg >= 3.5) {
+        category = 'negative';
+      }
+
       return {
         tagName,
         count: stat.count,
         averageLevel: avg,
         averageEmoji: opt?.emoji || '😐',
         averageLabel: opt?.label || '普通',
+        category,
       };
     })
     .sort((a, b) => b.count - a.count || (a.averageLevel || 0) - (b.averageLevel || 0));
