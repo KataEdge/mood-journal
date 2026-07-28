@@ -9,6 +9,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MoodCard from '../components/MoodCard';
+import MoodStatsCard from '../components/MoodStatsCard';
 import { MoodEntry } from '../types';
 import { getMoodEntries, deleteMoodEntry } from '../utils/storage';
 import {
@@ -25,6 +26,7 @@ interface Section {
 
 export default function HistoryScreen() {
   const [sections, setSections] = useState<Section[]>([]);
+  const [allEntries, setAllEntries] = useState<MoodEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
@@ -32,6 +34,7 @@ export default function HistoryScreen() {
   const loadEntries = async () => {
     setLoading(true);
     const entries = await getMoodEntries();
+    setAllEntries(entries);
 
     // 日付ごとにグループ化
     const grouped = entries.reduce<Record<string, MoodEntry[]>>((acc, entry) => {
@@ -123,6 +126,7 @@ export default function HistoryScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           renderSectionHeader={renderSectionHeader}
+          ListHeaderComponent={<MoodStatsCard entries={allEntries} />}
           ListEmptyComponent={renderEmpty}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
