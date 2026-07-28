@@ -106,7 +106,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm + 4,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    marginHorizontal: Spacing.md,
     marginBottom: Spacing.md,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -117,6 +116,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginRight: Spacing.xs,
   },
   iconContainer: {
     width: 44,
@@ -131,18 +131,23 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     justifyContent: 'center',
+    flex: 1,
+    flexShrink: 1,
   },
   streakTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
+    lineHeight: 22,
   },
   streakSubtitle: {
     fontSize: FontSize.xs,
     marginTop: 2,
+    lineHeight: 16,
   },
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
   },
   badgePill: {
     flexDirection: 'row',

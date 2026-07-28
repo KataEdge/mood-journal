@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    marginHorizontal: Spacing.md,
     marginBottom: Spacing.md,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
