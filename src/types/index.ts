@@ -78,12 +78,22 @@ export interface MoodOption {
 }
 
 /**
+ * リマインダー個々の設定
+ */
+export interface ReminderItem {
+  id: string;
+  title: string;
+  hour: number;
+  minute: number;
+  enabled: boolean;
+}
+
+/**
  * リマインダー通知の設定
  */
 export interface ReminderSettings {
-  enabled: boolean;
-  hour: number;
-  minute: number;
+  masterEnabled: boolean;
+  reminders: ReminderItem[];
 }
 
 /**

@@ -13,15 +13,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import BreathingGuideModal from '../components/BreathingGuideModal';
-import TimePickerModal from '../components/TimePickerModal';
 import ProfileSetupModal from '../components/ProfileSetupModal';
+import ReminderEditModal from '../components/ReminderEditModal';
 import { ThemeHeader } from '../components/ThemeHeader';
 import {
   getReminderSettings,
   saveReminderSettings,
   requestNotificationPermission,
 } from '../utils/notifications';
-import { ReminderSettings, ThemeType, UserProfile } from '../types';
+import { ReminderSettings, ReminderItem, ThemeType, UserProfile } from '../types';
 import { getMoodEntries, getUserProfile, saveUserProfile } from '../utils/storage';
 import { checkAndEvaluateBadges } from '../utils/streak';
 import { FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
@@ -30,14 +30,15 @@ import { useTheme } from '../context/ThemeContext';
 export default function SafetyScreen() {
   const { theme, colors, setTheme } = useTheme();
   const [showBreathingModal, setShowBreathingModal] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [reminder, setReminder] = useState<ReminderSettings>({
-    enabled: false,
-    hour: 21,
-    minute: 0,
+    masterEnabled: false,
+    reminders: [],
   });
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<ReminderItem | null>(null);
 
   useEffect(() => {
     loadReminder();
@@ -60,7 +61,7 @@ export default function SafetyScreen() {
     setReminder(settings);
   };
 
-  const handleToggleReminder = async (value: boolean) => {
+  const handleToggleMaster = async (value: boolean) => {
     if (value) {
       const granted = await requestNotificationPermission();
       if (!granted) {
@@ -69,28 +70,77 @@ export default function SafetyScreen() {
       }
     }
 
-    const updated = { ...reminder, enabled: value };
+    const updated = { ...reminder, masterEnabled: value };
     setReminder(updated);
     const success = await saveReminderSettings(updated);
 
     if (value && success) {
-      const timeStr = `${updated.hour.toString().padStart(2, '0')}:${updated.minute.toString().padStart(2, '0')}`;
-      Alert.alert('リマインダーを設定しました', `毎日 ${timeStr} にお届けします 🔔`);
+      Alert.alert('リマインダーを有効にしました', '設定された時刻に通知をお届けします 🔔');
     }
   };
 
-  const handleSaveTime = async (hour: number, minute: number) => {
-    const updated = { ...reminder, hour, minute };
+  const handleToggleItem = async (id: string, value: boolean) => {
+    const updatedReminders = reminder.reminders.map((item) =>
+      item.id === id ? { ...item, enabled: value } : item
+    );
+    const updated = { ...reminder, reminders: updatedReminders };
     setReminder(updated);
-    if (reminder.enabled) {
-      const success = await saveReminderSettings(updated);
-      if (success) {
-        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        Alert.alert('通知時刻を変更しました', `毎日 ${timeStr} に変更されました 🔔`);
-      }
-    } else {
-      await saveReminderSettings(updated);
+    await saveReminderSettings(updated);
+  };
+
+  const handleOpenAddModal = () => {
+    if (reminder.reminders.length >= 5) {
+      Alert.alert('登録上限', 'リマインダーは最大5件まで登録できます。');
+      return;
     }
+    setEditingItem(null);
+    setShowEditModal(true);
+  };
+
+  const handleOpenEditModal = (item: ReminderItem) => {
+    setEditingItem(item);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteReminder = (id: string) => {
+    Alert.alert('リマインダーの削除', 'このリマインダーを削除してもよろしいですか？', [
+      { text: 'キャンセル', style: 'cancel' },
+      {
+        text: '削除',
+        style: 'destructive',
+        onPress: async () => {
+          const updatedReminders = reminder.reminders.filter((r) => r.id !== id);
+          const updated = { ...reminder, reminders: updatedReminders };
+          setReminder(updated);
+          await saveReminderSettings(updated);
+        },
+      },
+    ]);
+  };
+
+  const handleSaveReminderModal = async (title: string, hour: number, minute: number) => {
+    let updatedReminders: ReminderItem[];
+
+    if (editingItem) {
+      updatedReminders = reminder.reminders.map((item) =>
+        item.id === editingItem.id ? { ...item, title, hour, minute } : item
+      );
+    } else {
+      const newItem: ReminderItem = {
+        id: `reminder_${Date.now()}`,
+        title,
+        hour,
+        minute,
+        enabled: true,
+      };
+      updatedReminders = [...reminder.reminders, newItem];
+    }
+
+    const updated = { ...reminder, reminders: updatedReminders };
+    setReminder(updated);
+    await saveReminderSettings(updated);
+    setShowEditModal(false);
+    setEditingItem(null);
   };
 
   const handleCall = (number: string) => {
@@ -98,8 +148,6 @@ export default function SafetyScreen() {
       // 電話アプリがない場合は無視
     });
   };
-
-  const formattedTime = `${reminder.hour.toString().padStart(2, '0')}:${reminder.minute.toString().padStart(2, '0')}`;
 
   const themeOptions: { type: ThemeType; label: string; icon: string; desc: string }[] = [
     { type: 'light', label: 'ノーマル', icon: 'sparkles', desc: 'パステルで爽やか' },
@@ -253,41 +301,88 @@ export default function SafetyScreen() {
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardIcon}>🔔</Text>
-            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-              毎日の記録リマインダー
+            <Text style={[styles.cardTitle, { color: colors.textPrimary, flex: 1 }]}>
+              記録リマインダー
             </Text>
+            <Switch
+              value={reminder.masterEnabled}
+              onValueChange={handleToggleMaster}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={reminder.masterEnabled ? colors.primaryDark : '#f4f3f4'}
+            />
           </View>
           <Text style={[styles.cardBody, { color: colors.textSecondary }]}>
-            1日の終わりに気持ちを振り返る時間を。お好みの時刻にやさしいリマインダーをお届けします。
+            生活リズムに合わせて複数のリマインダーを設定できます（最大5件）。
           </Text>
 
-          <View style={[styles.settingRow, { borderTopColor: colors.divider }]}>
-            <View style={styles.timeInfo}>
-              <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>毎日の通知</Text>
+          {/* リマインダーリスト */}
+          <View style={[styles.reminderListContainer, { borderTopColor: colors.divider }]}>
+            {reminder.reminders.map((item) => {
+              const timeStr = `${item.hour.toString().padStart(2, '0')}:${item.minute.toString().padStart(2, '0')}`;
+              return (
+                <View
+                  key={item.id}
+                  style={[
+                    styles.reminderListItem,
+                    { backgroundColor: colors.background, borderColor: colors.border },
+                  ]}
+                >
+                  <View style={styles.reminderItemLeft}>
+                    <TouchableOpacity
+                      onPress={() => handleOpenEditModal(item)}
+                      style={styles.reminderTitleRow}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.reminderItemTitle, { color: colors.textPrimary }]}>
+                        {item.title}
+                      </Text>
+                      <Ionicons
+                        name="pencil-outline"
+                        size={14}
+                        color={colors.textLight}
+                        style={{ marginLeft: 4 }}
+                      />
+                    </TouchableOpacity>
+                    <Text style={[styles.reminderItemTime, { color: colors.primaryDark }]}>
+                      {timeStr}
+                    </Text>
+                  </View>
+
+                  <View style={styles.reminderItemRight}>
+                    <Switch
+                      value={item.enabled && reminder.masterEnabled}
+                      disabled={!reminder.masterEnabled}
+                      onValueChange={(val) => handleToggleItem(item.id, val)}
+                      trackColor={{ false: colors.border, true: colors.primary }}
+                      thumbColor={
+                        item.enabled && reminder.masterEnabled ? colors.primaryDark : '#f4f3f4'
+                      }
+                    />
+                    <TouchableOpacity
+                      onPress={() => handleDeleteReminder(item.id)}
+                      style={styles.deleteIconButton}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="trash-outline" size={18} color="#FF6B6B" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
+
+            {/* リマインダー追加ボタン */}
+            {reminder.reminders.length < 5 && (
               <TouchableOpacity
-                style={styles.timePickerButton}
-                onPress={() => setShowTimePicker(true)}
+                style={[styles.addReminderButton, { borderColor: colors.primary }]}
+                onPress={handleOpenAddModal}
                 activeOpacity={0.7}
               >
-                <Ionicons
-                  name="time-outline"
-                  size={16}
-                  color={colors.primaryDark}
-                  style={{ marginRight: 4 }}
-                />
-                <Text style={[styles.timePickerButtonText, { color: colors.primaryDark }]}>
-                  {formattedTime}
+                <Ionicons name="add-circle-outline" size={18} color={colors.primaryDark} />
+                <Text style={[styles.addReminderButtonText, { color: colors.primaryDark }]}>
+                  リマインダーを追加 ({reminder.reminders.length}/5)
                 </Text>
-                <Text style={[styles.timePickerHint, { color: colors.textLight }]}> (変更)</Text>
               </TouchableOpacity>
-            </View>
-
-            <Switch
-              value={reminder.enabled}
-              onValueChange={handleToggleReminder}
-              trackColor={{ false: colors.border, true: colors.primary }}
-              thumbColor={reminder.enabled ? colors.primaryDark : '#f4f3f4'}
-            />
+            )}
           </View>
         </View>
 
@@ -435,13 +530,15 @@ export default function SafetyScreen() {
         }}
       />
 
-      {/* 時刻選択モーダル */}
-      <TimePickerModal
-        visible={showTimePicker}
-        initialHour={reminder.hour}
-        initialMinute={reminder.minute}
-        onClose={() => setShowTimePicker(false)}
-        onSave={handleSaveTime}
+      {/* リマインダー編集・追加モーダル */}
+      <ReminderEditModal
+        visible={showEditModal}
+        initialItem={editingItem}
+        onSave={handleSaveReminderModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingItem(null);
+        }}
       />
 
       {/* プロフィール設定モーダル */}
@@ -597,6 +694,59 @@ const styles = StyleSheet.create({
   },
   timePickerHint: {
     fontSize: FontSize.xs,
+  },
+  reminderListContainer: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    gap: Spacing.sm,
+  },
+  reminderListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+  },
+  reminderItemLeft: {
+    flex: 1,
+  },
+  reminderTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  reminderItemTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+  },
+  reminderItemTime: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  reminderItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  deleteIconButton: {
+    padding: Spacing.xs,
+  },
+  addReminderButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    marginTop: Spacing.xs,
+    gap: Spacing.xs,
+  },
+  addReminderButtonText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   warningCard: {
     borderLeftWidth: 4,
