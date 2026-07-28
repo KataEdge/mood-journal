@@ -13,8 +13,10 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import MoodSelector from '../components/MoodSelector';
 import SafetyModal from '../components/SafetyModal';
+import BreathingGuideModal from '../components/BreathingGuideModal';
 import { TagSelector } from '../components/TagSelector';
 import { ThemeHeader } from '../components/ThemeHeader';
 import { HealthCard } from '../components/HealthCard';
@@ -41,6 +43,7 @@ export default function HomeScreen() {
   const [note, setNote] = useState('');
   const [quote, setQuote] = useState<Quote>(getRandomQuote());
   const [showSafetyModal, setShowSafetyModal] = useState(false);
+  const [showBreathingModal, setShowBreathingModal] = useState(false);
   const [saved, setSaved] = useState(false);
 
   // ヘルスケア連携ステート
@@ -238,6 +241,29 @@ export default function HomeScreen() {
               onSelect={handleMoodSelect}
             />
 
+            {/* 気分レベルが 4 (少し悪い) または 5 (とても悪い) の場合のセルフケア提案 */}
+            {(selectedMood === 4 || selectedMood === 5) && (
+              <View style={[styles.breathingCard, { backgroundColor: colors.surface, borderLeftColor: colors.primaryDark }]}>
+                <View style={styles.breathingCardHeader}>
+                  <Text style={styles.breathingIcon}>🍃</Text>
+                  <View style={styles.breathingTextContent}>
+                    <Text style={[styles.breathingTitle, { color: colors.textPrimary }]}>少し心が疲れていますか？</Text>
+                    <Text style={[styles.breathingBody, { color: colors.textSecondary }]}>
+                      4-7-8深呼吸で、気持ちを静めてリフレッシュしましょう。
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={[styles.breathingButton, { backgroundColor: colors.primary }]}
+                  onPress={() => setShowBreathingModal(true)}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="leaf-outline" size={18} color={colors.textOnPrimary} style={{ marginRight: 6 }} />
+                  <Text style={[styles.breathingButtonText, { color: colors.textOnPrimary }]}>4-7-8 深呼吸ガイドを開く</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             {/* 感情要因タグセレクター */}
             <TagSelector
               selectedTags={selectedTags}
@@ -313,6 +339,12 @@ export default function HomeScreen() {
 
       {/* 初回起動モーダル */}
       <SafetyModal visible={showSafetyModal} onClose={handleSafetyClose} />
+
+      {/* 呼吸法ガイドモーダル */}
+      <BreathingGuideModal
+        visible={showBreathingModal}
+        onClose={() => setShowBreathingModal(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -358,6 +390,48 @@ const styles = StyleSheet.create({
   },
   refreshText: {
     fontSize: FontSize.sm,
+  },
+  breathingCard: {
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.xs,
+    borderLeftWidth: 4,
+    ...Shadow.sm,
+  },
+  breathingCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.sm,
+  },
+  breathingIcon: {
+    fontSize: 24,
+    marginRight: Spacing.sm,
+  },
+  breathingTextContent: {
+    flex: 1,
+  },
+  breathingTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  breathingBody: {
+    fontSize: FontSize.sm,
+    lineHeight: 20,
+  },
+  breathingButton: {
+    borderRadius: BorderRadius.full,
+    paddingVertical: Spacing.sm + 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.xs,
+    ...Shadow.sm,
+  },
+  breathingButtonText: {
+    fontSize: FontSize.sm + 1,
+    fontWeight: '700',
   },
   noteCard: {
     borderRadius: BorderRadius.lg,

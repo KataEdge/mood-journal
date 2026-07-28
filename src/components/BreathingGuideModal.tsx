@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface BreathingGuideModalProps {
   visible: boolean;
@@ -23,6 +24,7 @@ export default function BreathingGuideModal({
   visible,
   onClose,
 }: BreathingGuideModalProps) {
+  const { colors } = useTheme();
   const [phase, setPhase] = useState<Phase>('idle');
   const [cycleCount, setCycleCount] = useState(0); // 1 ~ 3
   const [countdown, setCountdown] = useState(0);
@@ -140,9 +142,9 @@ export default function BreathingGuideModal({
       case 'exhale':
         return '#64B5F6'; // Soft blue
       case 'completed':
-        return Colors.primary;
+        return colors.primaryDark;
       default:
-        return Colors.primary;
+        return colors.primaryDark;
     }
   };
 
@@ -153,18 +155,18 @@ export default function BreathingGuideModal({
       transparent={false}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         {/* ヘッダー */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>4-7-8 呼吸法ガイド 🍃</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>4-7-8 呼吸法ガイド 🍃</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Ionicons name="close-outline" size={28} color={Colors.textPrimary} />
+            <Ionicons name="close-outline" size={28} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
         {/* 呼吸サークル & カウントダウン */}
         <View style={styles.content}>
-          <Text style={styles.cycleText}>
+          <Text style={[styles.cycleText, { color: colors.textSecondary }]}>
             {phase === 'completed'
               ? '3セット完了！'
               : cycleCount > 0
@@ -174,7 +176,7 @@ export default function BreathingGuideModal({
 
           <View style={styles.circleContainer}>
             {/* バックグラウンド波紋風リング */}
-            <View style={styles.outerRing} />
+            <View style={[styles.outerRing, { borderColor: colors.border }]} />
 
             {/* メインの拡大・縮小サークル */}
             <Animated.View
@@ -190,11 +192,11 @@ export default function BreathingGuideModal({
             {/* 中央カウントダウン */}
             <View style={styles.centerOverlay}>
               {phase === 'completed' ? (
-                <Ionicons name="sparkles" size={48} color={Colors.surface} />
+                <Ionicons name="sparkles" size={48} color="#FFFFFF" />
               ) : phase !== 'idle' ? (
                 <Text style={styles.countdownText}>{countdown}</Text>
               ) : (
-                <Ionicons name="leaf-outline" size={48} color={Colors.surface} />
+                <Ionicons name="leaf-outline" size={48} color="#FFFFFF" />
               )}
             </View>
           </View>
@@ -209,34 +211,34 @@ export default function BreathingGuideModal({
         <View style={styles.footer}>
           {phase === 'idle' ? (
             <TouchableOpacity
-              style={styles.startButton}
+              style={[styles.startButton, { backgroundColor: colors.primary }]}
               onPress={startBreathingCycle}
               activeOpacity={0.8}
             >
-              <Ionicons name="play" size={22} color={Colors.textPrimary} style={styles.btnIcon} />
-              <Text style={styles.startButtonText}>セッションを開始 (3セット)</Text>
+              <Ionicons name="play" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
+              <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>セッションを開始 (3セット)</Text>
             </TouchableOpacity>
           ) : phase === 'completed' ? (
             <View style={{ gap: Spacing.sm }}>
               <TouchableOpacity
-                style={styles.startButton}
+                style={[styles.startButton, { backgroundColor: colors.primary }]}
                 onPress={startBreathingCycle}
                 activeOpacity={0.8}
               >
-                <Ionicons name="refresh" size={22} color={Colors.textPrimary} style={styles.btnIcon} />
-                <Text style={styles.startButtonText}>もう一度行う</Text>
+                <Ionicons name="refresh" size={22} color={colors.textOnPrimary} style={styles.btnIcon} />
+                <Text style={[styles.startButtonText, { color: colors.textOnPrimary }]}>もう一度行う</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.stopButton, { backgroundColor: Colors.border }]}
+                style={[styles.stopButton, { backgroundColor: colors.border }]}
                 onPress={onClose}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.stopButtonText, { color: Colors.textPrimary }]}>終了する</Text>
+                <Text style={[styles.stopButtonText, { color: colors.textPrimary }]}>終了する</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity
-              style={styles.stopButton}
+              style={[styles.stopButton, { backgroundColor: colors.accent }]}
               onPress={resetBreathing}
               activeOpacity={0.8}
             >
